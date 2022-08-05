@@ -30,14 +30,14 @@ class MainWindow2(QtWidgets.QMainWindow):
         self.app = app
 
         # TODO: Set num channels automatically based on length of data intake
-        self.num_channels = 2
+        self.num_channels = 4
         self.update_speed_ms = 1
         self.window_size = 4
         self.num_points = 500
 
         
         #Titles to be adjusted depending on what variables are graphed in experiment_main
-        self.plot_titles = ["Pressure Value (psi)", "Solenoid Value (O or 1)"]
+        self.plot_titles = ["Pressure value (MPa)", "Voltage value (V)", "Solenoid Value (O or 1)", "BNC cable voltage (0 or 1)"]
 
         self._init_timeseries()
         self.timer = QtCore.QTimer()

@@ -9,14 +9,23 @@ class GUI(ttk.Frame):
     def __init__(self, master, conn, in_conn=None):
         super().__init__(master)
 
+        self.afterid_1 = ttk.StringVar()
+        self.afterid_2 = ttk.StringVar()
+        self.afterid_3 = ttk.StringVar()
+
         self.running = ttk.BooleanVar(value=False)
         self.running_1 = ttk.BooleanVar(value=False)
         self.running_2 = ttk.BooleanVar(value=False)
         self.is_trial3_auto = False
-        self.is_trial3_low = False
-        self.is_trial3_medium = False
-        self.is_trial3_high = False
+        self.is_trial3_block1 = False
+        self.is_trial3_block2 = False
+        self.is_trial3_block3 = False
+        self.is_trial3_block4 = False
+        self.is_trial3_block5 = False
+        self.is_trial3_block6 = False
         self.is_label = False
+        self.is_rest_bar = False
+        self.Program_start = False
 
         self.is_trial3_status = False
         self.trial3_break = False
@@ -42,6 +51,9 @@ class GUI(ttk.Frame):
         self.trial_finish = False
 
         self.is_trial1_status = False
+        self.is_trial1 = False
+        self.is_trial2_status = False
+        self.is_trial2 = False
         self.is_trial3_status = False
 
         # queues for multiprocessing
@@ -80,10 +92,10 @@ class GUI(ttk.Frame):
         self.frame3 = ttk.Frame(self.notebk, width = 400, height = 400, relief = ttk.SUNKEN)
 
 
-        self.notebk.add(self.frame0, text = 'Constant                                ')
-        self.notebk.add(self.frame1, text = 'Anatomical Localiation Scan')
-        self.notebk.add(self.frame2, text = 'Pre Experiment                      ')
-        self.notebk.add(self.frame3, text = 'Stimulation Task                    ')
+        self.notebk.add(self.frame0, text = 'Constant                           ')
+        self.notebk.add(self.frame1, text = 'Phantom Scan                  ')
+        self.notebk.add(self.frame2, text = 'Functional Localizer Scan')
+        self.notebk.add(self.frame3, text = 'Functional Scan                ')
         self.notebk.pack(expand = 1, fill="both")
 
         self.set_frame0()
@@ -96,7 +108,7 @@ class GUI(ttk.Frame):
     # frame functions
     def set_frame0(self):
         # --------------------------- Frame 0 ----------------------------------------------
-        self.title = ttk.Label(self.frame0, text="                                                      0. Constant Value", bootstyle=DARK, font=("Calibri", 15, "bold"), background="")
+        self.title = ttk.Label(self.frame0, text="                                                      Constant Value", bootstyle=DARK, font=("Calibri", 15, "bold"), background="")
         self.title.grid(row=0, column=0, columnspan=4, padx=10, pady=10)
         self.trial0_row = 0
 
@@ -104,15 +116,14 @@ class GUI(ttk.Frame):
         self.sub_lf = ttk.Labelframe(self.frame0,text="Constant Information", bootstyle=INFO)
         self.sub_lf.place(x=40,y=50,width=400,height=450)
 
-        self.subjectInfo = ['Subject Number', 'Age', 'Gender', 'Subject Type', 'Diabetes', 'Years since Stroke', 
-                             'Dominant Arm', 'Testing Arm']
+        self.subjectInfo = ['Subject Number', 'Age', 'Gender', 'Weight(lb)', 'Dominant Arm']
 
         self.subject_result = []
 
         # Text entry fields
         for i in range(len(self.subjectInfo)):
             ttk.Label(self.sub_lf, text=self.subjectInfo[i],font=("Calibri", 10)).grid(row=i+1, column=0, padx=5, pady=5)
-            if self.subjectInfo[i] not in ['Gender', 'Diabetes', 'Dominant Arm', 'Testing Arm']:
+            if self.subjectInfo[i] not in ['Gender','Dominant Arm']:
                 e1 = ttk.Entry(self.sub_lf,show=None)
                 e1.grid(row=i+1, column=1, padx=5, pady=5)
                 self.subject_result.append(e1)
@@ -127,30 +138,14 @@ class GUI(ttk.Frame):
         self.genders_Type = ["Male", "Female", "Other"]
         self.genders_Menu = ttk.OptionMenu(self.sub_lf, self.genders_StinngVar, self.genders_Type[0], *self.genders_Type,)
         self.genders_Menu.grid(row=3, column=1, padx=5, pady=5)
-    
-        # Diabetes
-        self.diabetes_StinngVar = ttk.StringVar(self.master)
-        self.diabetes_First = 'YES/NO'
-        self.diabetes_StinngVar.set(self.diabetes_First)
-        self.diabetes_Type = ['YES','NO']
-        self.diabetes_Menu = ttk.OptionMenu(self.sub_lf, self.diabetes_StinngVar, self.diabetes_Type[0], *self.diabetes_Type)
-        self.diabetes_Menu.grid(row=5, column=1, padx=5, pady=5)
 
         # Dominant Arm
         self.domArm_StinngVar = ttk.StringVar(self.master)
         self.domArm_First = 'Left/Right'
         self.domArm_StinngVar.set(self.domArm_First)
-        self.domArm_Type = ['Left','Right']
+        self.domArm_Type = ['Right', 'Left']
         self.domArm_Menu = ttk.OptionMenu(self.sub_lf, self.domArm_StinngVar, self.domArm_Type[0], *self.domArm_Type)
-        self.domArm_Menu.grid(row=7, column=1, padx=5, pady=5)
-
-        # Test Arm
-        self.TestArm_StinngVar = ttk.StringVar(self.master)
-        self.TestArm_First = 'Left/Right'
-        self.TestArm_StinngVar.set(self.TestArm_First)
-        self.TestArm_Type = ['Left','Right']
-        self.TestArm_Menu = ttk.OptionMenu(self.sub_lf, self.TestArm_StinngVar, self.TestArm_Type[0], *self.TestArm_Type)
-        self.TestArm_Menu.grid(row=8, column=1, padx=5, pady=5)
+        self.domArm_Menu.grid(row=5, column=1, padx=5, pady=5)
 
         # Submit constant information
         self.Constant_Sub = ttk.Button(self.sub_lf, text="Save", bootstyle=(INFO, OUTLINE), command=self.trial0_save)
@@ -179,7 +174,7 @@ class GUI(ttk.Frame):
         self.trial0_start_StinngVar = ttk.StringVar(self.master)
         self.trial0_start_First = 'Select a task'
         self.trial0_start_StinngVar.set(self.trial0_start_First)
-        self.trial0_start_Type = ["Pop out", "retract"]
+        self.trial0_start_Type = ["Up", "Down"]
         self.trial0_start_Menu = ttk.OptionMenu(self.trial0_exp_lf, self.trial0_start_StinngVar, self.trial0_start_Type[0], *self.trial0_start_Type,)
         self.trial0_start_Menu.grid(row=8,column=0, columnspan=2, padx=5, pady=5)
 
@@ -203,40 +198,37 @@ class GUI(ttk.Frame):
 
         self.is_start_trial1 = True
 
-        self.title = ttk.Label(self.frame1, text="                                          1, Anatomical Localiation Scan", bootstyle=DARK, font=("Calibri", 15, "bold"), background="")
+        self.title = ttk.Label(self.frame1, text="                                                      Phantom Scan", bootstyle=DARK, font=("Calibri", 15, "bold"), background="")
         self.title.grid(row=0, column=0, columnspan=4, padx=10, pady=10)
         self.trial1_row = 0
 
         ### Description
-        # add EF label frame
+        # add preparation frame
         self.trial1_lf = ttk.Labelframe(self.frame1,text="Preparation", bootstyle=INFO)
-        self.trial1_lf.place(x=10,y=50,width=830,height=230)
+        self.trial1_lf.place(x=10,y=50,width=830,height=200)
 
         # description
-        self.description_2 = ttk.Label(self.trial1_lf, text="This trial type will be used to do an anatomical localization scan. It will have two sets (Right and Left).",font=("Calibri", 11))
+        self.description_2 = ttk.Label(self.trial1_lf, text="Phantom Scan will be used to verify the validation of the MRI compatible device. 8 trials. Each trial will",font=("Calibri", 11))
         self.description_2.grid(row=self.trial1_row+1, column=0, columnspan=4, padx=5, pady=5)
 
-        self.description_2 = ttk.Label(self.trial1_lf, text="Each set has ten trials. Each trial will pop out the piston ten times. And then there will be 30 second to relax.",font=("Calibri", 11))
+        self.description_2 = ttk.Label(self.trial1_lf, text=" push up the piston for 1.5 second and push down for 1.5 second. 30 second rest between each trail.",font=("Calibri", 11))
         self.description_2.grid(row=self.trial1_row+2, column=0,columnspan=4, padx=5, pady=5)
 
         # # INPUT MVT
         self.input_subj = ttk.Label(self.trial1_lf, text="Subject Number:  ",font=("Calibri", 10))
         self.input_subj.grid(row=self.trial1_row+3, column=0, padx=5, pady=5)
 
-        self.input_subj = ttk.Label(self.trial1_lf, text="Subject Age:  ",font=("Calibri", 10))
+        self.input_subj = ttk.Label(self.trial1_lf, text="Age:  ",font=("Calibri", 10))
         self.input_subj.grid(row=self.trial1_row+3, column=2, padx=5, pady=5)
 
-        self.input_subj = ttk.Label(self.trial1_lf, text="Subject Gender:  ",font=("Calibri", 10))
+        self.input_subj = ttk.Label(self.trial1_lf, text="Gender:  ",font=("Calibri", 10))
         self.input_subj.grid(row=self.trial1_row+4, column=0, padx=5, pady=5)
 
-        self.input_subj = ttk.Label(self.trial1_lf, text="Subject Type:  ",font=("Calibri", 10))
+        self.input_subj = ttk.Label(self.trial1_lf, text="Weight(lb):  ",font=("Calibri", 10))
         self.input_subj.grid(row=self.trial1_row+4, column=2, padx=5, pady=5)
 
-        self.input_subj = ttk.Label(self.trial1_lf, text="Years since Stroke:  ",font=("Calibri", 10))
+        self.input_subj = ttk.Label(self.trial1_lf, text="Dominant arm:  ",font=("Calibri", 10))
         self.input_subj.grid(row=self.trial1_row+5, column=0, padx=5, pady=5)
-
-        self.input_subj = ttk.Label(self.trial1_lf, text="Testing arm:  ",font=("Calibri", 10))
-        self.input_subj.grid(row=self.trial1_row+5, column=2, padx=5, pady=5)
 
         ### Experimental 
         # add trial1 experimental label frame
@@ -244,52 +236,36 @@ class GUI(ttk.Frame):
         self.trial1_exp_lf.place(x=10,y=300,width=830,height=365)
 
         # # UP IN UP&IN
-        self.title_1 = ttk.Label(self.trial1_exp_lf, text="Choose Tasks",font=("Calibri", 12, "bold"), bootstyle=PRIMARY)
+        self.title_1 = ttk.Label(self.trial1_exp_lf, text="Click to start",font=("Calibri", 12, "bold"), bootstyle=PRIMARY)
         self.title_1.grid(row=self.trial1_row+0, column=0, padx=5, pady=5)
 
-
-        self.trial1_start_StinngVar_1 = ttk.StringVar(self.master)
-        self.trial1_start_First = 'Select a task'
-        self.trial1_start_StinngVar_1.set(self.trial1_start_First)
-        self.trial1_start_Type = ["Automatic", "Right", "Left"]
-        self.trial1_start_Menu = ttk.OptionMenu(self.trial1_exp_lf, self.trial1_start_StinngVar_1, self.trial1_start_Type[0], *self.trial1_start_Type,)
-        self.trial1_start_Menu.grid(row=self.trial1_row+0,column=1, padx=5, pady=5)
-
-        self.trial1_start_StinngVar_2 = ttk.StringVar(self.master)
-        self.trial1_start_First = 'Select a task'
-        self.trial1_start_StinngVar_2.set(self.trial1_start_First)
-        self.trial1_start_Type = ["Auto", "Trial 1","Trial 2","Trial 3","Trial 4","Trial 5","Trial 6","Trial 7","Trial 8","Trial 9","Trial 10"]
-        self.trial1_start_Menu = ttk.OptionMenu(self.trial1_exp_lf, self.trial1_start_StinngVar_2, self.trial1_start_Type[0], *self.trial1_start_Type,)
-        self.trial1_start_Menu.grid(row=self.trial1_row+0,column=2, padx=5, pady=5)
-
-
         self.trial1_button = ttk.Button(self.trial1_exp_lf, text="Start", command=self.trial1_Start, bootstyle=DANGER)
-        self.trial1_button.grid(row=self.trial1_row+0,column=3, padx=5, pady=5)
+        self.trial1_button.grid(row=self.trial1_row+0,column=1, padx=5, pady=5)
 
         self.trial1_button_2 = ttk.Button(self.trial1_exp_lf, text="Stop", command=self.trial1_stop, bootstyle=DANGER)
-        self.trial1_button_2.grid(row=self.trial1_row+0,column=4, padx=5, pady=5)
+        self.trial1_button_2.grid(row=self.trial1_row+0,column=2, padx=5, pady=5)
 
         # Trial and Status
         self.title_1 = ttk.Label(self.trial1_exp_lf, text="Current Trial: ",font=("Calibri", 12, "bold"))
-        self.title_1.grid(row=self.trial1_row+2, column=0, padx=5, pady=5)
+        self.title_1.grid(row=self.trial1_row+1, column=0, padx=5, pady=5)
 
         self.title_1 = ttk.Label(self.trial1_exp_lf, text="Current Status: ",font=("Calibri", 12, "bold"))
-        self.title_1.grid(row=self.trial1_row+2, column=2, padx=5, pady=5)
+        self.title_1.grid(row=self.trial1_row+1, column=2, padx=5, pady=5)
 
         self.title_1 = ttk.Label(self.trial1_exp_lf, text="       ",font=("Calibri", 12, "bold"))
-        self.title_1.grid(row=self.trial1_row+3, column=2, padx=5, pady=5) 
+        self.title_1.grid(row=self.trial1_row+2, column=2, padx=5, pady=5) 
 
 
         # Starting 
         self.title_1 = ttk.Label(self.trial1_exp_lf, text="The Experimental Progress Bar",font=("Calibri", 12, "bold"), bootstyle=INFO)
-        self.title_1.grid(row=self.trial1_row+5, column=0, columnspan=5, padx=5, pady=5)   
+        self.title_1.grid(row=self.trial1_row+4, column=0, columnspan=5, padx=5, pady=5)   
 
         self.title_1 = ttk.Label(self.trial1_exp_lf, text="       ",font=("Calibri", 12, "bold"))
-        self.title_1.grid(row=self.trial1_row+6, column=0, padx=5, pady=5)   
+        self.title_1.grid(row=self.trial1_row+5, column=0, padx=5, pady=5)   
 
         self.trial1_bar_max = 1000
         self.title_1_fg = ttk.Floodgauge(self.trial1_exp_lf, bootstyle=INFO, length=750, maximum=self.trial1_bar_max, font=("Calibri", 12, 'bold'),)
-        self.title_1_fg.grid(row=self.trial1_row+7, column=0, columnspan=5, padx=5, pady=3)  
+        self.title_1_fg.grid(row=self.trial1_row+6, column=0, columnspan=5, padx=5, pady=3)  
 
         self.add_trial1()
         # End 
@@ -298,74 +274,89 @@ class GUI(ttk.Frame):
 
         self.quit = ttk.Button(self.End_lf, text='Exit', command=self.close, bootstyle=DANGER)
         self.quit.grid(row=0,column=0,padx=5, pady=5)
+    
+    def set_frame2(self):
+    
+        # Bool number
+        self.is_trial2_EMG = False
+        self.is_trial2_in = False
+        self.is_trial2_out = False
+        self.is_trial2_up = False
 
-    def set_frame2(self): 
-        # --------------------------- Frame 2 ----------------------------------------------
-        self.trial2_row = 1
         self.is_start_trial2 = True
-        # Title
-        self.title = ttk.Label(self.frame2, text="                                          2. Pre experiment", bootstyle=DARK, font=("Calibri", 15, "bold"), background="")
+
+        self.title = ttk.Label(self.frame2, text="                                                  Functional Localizer Scan", bootstyle=DARK, font=("Calibri", 15, "bold"), background="")
         self.title.grid(row=0, column=0, columnspan=4, padx=10, pady=10)
+        self.trial2_row = 0
 
         ### Description
-        # add EF label frame
+        # add preparation frame
         self.trial2_lf = ttk.Labelframe(self.frame2,text="Preparation", bootstyle=INFO)
-        self.trial2_lf.place(x=10,y=50,width=830,height=230)
+        self.trial2_lf.place(x=10,y=50,width=830,height=200)
 
         # description
-        self.description_2 = ttk.Label(self.trial2_lf, text="This trial type will be used to get the weak, medium and high pressure threshold.",font=("Calibri", 11))
+        self.description_2 = ttk.Label(self.trial2_lf, text="Localization Scan will be used to locate the signal changes in the brain. 8 trials. Each trial will",font=("Calibri", 11))
         self.description_2.grid(row=self.trial2_row+1, column=0, columnspan=4, padx=5, pady=5)
 
-        self.description_2 = ttk.Label(self.trial2_lf, text="                                                                                ",font=("Calibri", 11))
+        self.description_2 = ttk.Label(self.trial2_lf, text=" push up the piston for 1.5 second and push down for 1.5 second. 30 second rest between each trail.",font=("Calibri", 11))
         self.description_2.grid(row=self.trial2_row+2, column=0,columnspan=4, padx=5, pady=5)
 
         # # INPUT MVT
         self.input_subj = ttk.Label(self.trial2_lf, text="Subject Number:  ",font=("Calibri", 10))
         self.input_subj.grid(row=self.trial2_row+3, column=0, padx=5, pady=5)
 
-        self.input_subj = ttk.Label(self.trial2_lf, text="Subject Age:  ",font=("Calibri", 10))
+        self.input_subj = ttk.Label(self.trial2_lf, text="Age:  ",font=("Calibri", 10))
         self.input_subj.grid(row=self.trial2_row+3, column=2, padx=5, pady=5)
 
-        self.input_subj = ttk.Label(self.trial2_lf, text="Subject Gender:  ",font=("Calibri", 10))
+        self.input_subj = ttk.Label(self.trial2_lf, text="Gender:  ",font=("Calibri", 10))
         self.input_subj.grid(row=self.trial2_row+4, column=0, padx=5, pady=5)
 
-        self.input_subj = ttk.Label(self.trial2_lf, text="Subject Type:  ",font=("Calibri", 10))
+        self.input_subj = ttk.Label(self.trial2_lf, text="Weight(lb):  ",font=("Calibri", 10))
         self.input_subj.grid(row=self.trial2_row+4, column=2, padx=5, pady=5)
 
-        self.input_subj = ttk.Label(self.trial2_lf, text="Years since Stroke:  ",font=("Calibri", 10))
+        self.input_subj = ttk.Label(self.trial2_lf, text="Dominant arm:  ",font=("Calibri", 10))
         self.input_subj.grid(row=self.trial2_row+5, column=0, padx=5, pady=5)
-
-        self.input_subj = ttk.Label(self.trial2_lf, text="Testing arm:  ",font=("Calibri", 10))
-        self.input_subj.grid(row=self.trial2_row+5, column=2, padx=5, pady=5)
 
         ### Experimental 
         # add trial2 experimental label frame
         self.trial2_exp_lf = ttk.Labelframe(self.frame2,text="Experimental", bootstyle=INFO)
-        self.trial2_exp_lf.place(x=10,y=310,width=830,height=300)
+        self.trial2_exp_lf.place(x=10,y=300,width=830,height=365)
 
-        # enter value
-        self.title_2 = ttk.Label(self.trial2_exp_lf, text="Enter initial value in range 0-3150: ",font=("Calibri", 10))
+        # # UP IN UP&IN
+        self.title_2 = ttk.Label(self.trial2_exp_lf, text="Click to start",font=("Calibri", 12, "bold"), bootstyle=PRIMARY)
         self.title_2.grid(row=self.trial2_row+0, column=0, padx=5, pady=5)
 
-        self.trial2_input = ttk.Entry(self.trial2_exp_lf,show=None)
-        self.trial2_input.grid(row=self.trial2_row+0, column=1, padx=5, pady=5)
-
-
         self.trial2_button = ttk.Button(self.trial2_exp_lf, text="Start", command=self.trial2_Start, bootstyle=DANGER)
-        self.trial2_button.grid(row=self.trial2_row+0,column=2, padx=5, pady=5)
+        self.trial2_button.grid(row=self.trial2_row+0,column=1, padx=5, pady=5)
 
-        # time and force
-        self.trial2_button_3 = ttk.Button(self.trial2_exp_lf, text="Record", command=self.trial2_stop, bootstyle=SUCCESS)
-        self.trial2_button_3.grid(row=self.trial2_row+0,column=3, padx=5, pady=5)
+        self.trial2_button_2 = ttk.Button(self.trial2_exp_lf, text="Stop", command=self.trial2_stop, bootstyle=DANGER)
+        self.trial2_button_2.grid(row=self.trial2_row+0,column=2, padx=5, pady=5)
 
+        # Trial and Status
+        self.title_2 = ttk.Label(self.trial2_exp_lf, text="Current Trial: ",font=("Calibri", 12, "bold"))
+        self.title_2.grid(row=self.trial2_row+1, column=0, padx=5, pady=5)
+
+        self.title_2 = ttk.Label(self.trial2_exp_lf, text="Current Status: ",font=("Calibri", 12, "bold"))
+        self.title_2.grid(row=self.trial2_row+1, column=2, padx=5, pady=5)
 
         self.title_2 = ttk.Label(self.trial2_exp_lf, text="       ",font=("Calibri", 12, "bold"))
-        self.title_2.grid(row=self.trial2_row+2, column=0, padx=5, pady=5) 
+        self.title_2.grid(row=self.trial2_row+2, column=2, padx=5, pady=5) 
 
+
+        # Starting 
+        self.title_2 = ttk.Label(self.trial2_exp_lf, text="The Experimental Progress Bar",font=("Calibri", 12, "bold"), bootstyle=INFO)
+        self.title_2.grid(row=self.trial2_row+4, column=0, columnspan=5, padx=5, pady=5)   
+
+        self.title_2 = ttk.Label(self.trial2_exp_lf, text="       ",font=("Calibri", 12, "bold"))
+        self.title_2.grid(row=self.trial2_row+5, column=0, padx=5, pady=5)   
+
+        self.trial2_bar_max = 1000
+        self.title_2_fg = ttk.Floodgauge(self.trial2_exp_lf, bootstyle=INFO, length=750, maximum=self.trial2_bar_max, font=("Calibri", 12, 'bold'),)
+        self.title_2_fg.grid(row=self.trial2_row+6, column=0, columnspan=5, padx=5, pady=3)  
 
         # End 
         self.End_lf = ttk.Frame(self.frame2)
-        self.End_lf.place(x=700,y=750,width=100,height=50)
+        self.End_lf.place(x=700,y=740,width=100,height=50)
 
         self.quit = ttk.Button(self.End_lf, text='Exit', command=self.close, bootstyle=DANGER)
         self.quit.grid(row=0,column=0,padx=5, pady=5)
@@ -375,35 +366,44 @@ class GUI(ttk.Frame):
         self.trial3_row = 1
         self.is_start_trial3 = True
         # Title
-        self.title = ttk.Label(self.frame3, text="                                          3. Stimulation Task", bootstyle=DARK, font=("Calibri", 15, "bold"), background="")
+        self.title = ttk.Label(self.frame3, text="                                          Functional Scan", bootstyle=DARK, font=("Calibri", 15, "bold"), background="")
         self.title.grid(row=0, column=0, columnspan=4, padx=10, pady=10)
 
          ### Description
         # add EF label frame
         self.trial3_lf = ttk.Labelframe(self.frame3,text="Preparation", bootstyle=INFO)
-        self.trial3_lf.place(x=10,y=50,width=830,height=330)
+        self.trial3_lf.place(x=10,y=50,width=830,height=350)
 
         # description
-        self.description_3 = ttk.Label(self.trial3_lf, text="    This section are used to do the stimulation task. It will have two set (Right and Left). Each set has nine trials. ",font=("Calibri", 11))
-        self.description_3.grid(row=self.trial3_row+0, column=0, columnspan=4, padx=5, pady=5)
+        self.description_3 = ttk.Label(self.trial3_lf, text="Functional stimulation task has 6 trials. Each trial will include 5 stimulation with different force levels.",font=("Calibri", 11))
+        self.description_3.grid(row=self.trial3_row+0, column=0, columnspan=5, padx=5, pady=5)
 
-        self.description_3 = ttk.Label(self.trial3_lf, text="The duration of each test will increase from 6.0 second to 10.0 second. The order of force will be a latin square.",font=("Calibri", 11))
-        self.description_3.grid(row=self.trial3_row+1, column=0, columnspan=4, padx=5, pady=5)
+        self.description_3 = ttk.Label(self.trial3_lf, text=" The duration of each test will increase from 6.0 second to 10.0 second. The order of rest time will be ",font=("Calibri", 11))
+        self.description_3.grid(row=self.trial3_row+1, column=0, columnspan=5, padx=5, pady=5)
 
-        self.description_3 = ttk.Label(self.trial3_lf, text="Example: Trial1: Low + 6.0(relax) + medium + 6.5 + high + 7.0 ",font=("Calibri", 11))
-        self.description_3.grid(row=self.trial3_row+2, column=0, columnspan=4, padx=5, pady=5)
+        self.description_3 = ttk.Label(self.trial3_lf, text="random but it will include 6, 7, 8, 9, 10. The order of force level will be randomly generated by Python.",font=("Calibri", 11))
+        self.description_3.grid(row=self.trial3_row+2, column=0, columnspan=5, padx=5, pady=5)
 
-        self.description_3 = ttk.Label(self.trial3_lf, text="                 Trial2: medium + 6.5(relax) + high + 7.0 + Low + 7.5 ",font=("Calibri", 11))
-        self.description_3.grid(row=self.trial3_row+3, column=0, columnspan=4, padx=5, pady=5)
+        self.description_3 = ttk.Label(self.trial3_lf, text="Order of experiment",font=("Calibri", 11, "bold"),  bootstyle=PRIMARY)
+        self.description_3.grid(row=self.trial3_row+3, column=1, columnspan=2, padx=5, pady=5)
         
-        self.description_3 = ttk.Label(self.trial3_lf, text="Latin Square: low medium high         [6.0, 6.5, 7.0] [7.5, 8.0, 8.5] [9.0, 9.5, 10.0]",font=("Calibri", 11))
-        self.description_3.grid(row=self.trial3_row+4, column=0, columnspan=4, padx=5, pady=5)
+        self.description_3 = ttk.Label(self.trial3_lf, text="        Trial1:  [high + 9 + low + 6 + medium + 7 + low + 10 + medium + 8]",font=("Calibri", 11))
+        self.description_3.grid(row=self.trial3_row+3, column=3, columnspan=4, padx=5, pady=5)
 
-        self.description_3 = ttk.Label(self.trial3_lf, text="                        medium high low         [6.5, 7.0, 7.5] [8.0, 8.5, 9.0] [9.5, 10.0, 6.0]",font=("Calibri", 11))
-        self.description_3.grid(row=self.trial3_row+5, column=0, columnspan=4, padx=5, pady=5)
+        self.description_3 = ttk.Label(self.trial3_lf, text="       Trial2:  [low + 6 + high + 8 + low + 10 + medium + 9 + medium + 7]",font=("Calibri", 11))
+        self.description_3.grid(row=self.trial3_row+4, column=3, columnspan=4, padx=5, pady=5)
 
-        self.description_3 = ttk.Label(self.trial3_lf, text="                        high low medium         [7.0, 7.5, 8.0] [8.5, 9.0, 9.5] [10.0, 6.0, 6.5]",font=("Calibri", 11))
-        self.description_3.grid(row=self.trial3_row+6, column=0, columnspan=4, padx=5, pady=5)
+        self.description_3 = ttk.Label(self.trial3_lf, text="        Trial3:  [low + 7 + medium + 10 + medium + 6 + high + 8 + high + 9]",font=("Calibri", 11))
+        self.description_3.grid(row=self.trial3_row+5, column=3, columnspan=4, padx=5, pady=5)
+
+        self.description_3 = ttk.Label(self.trial3_lf, text="Trial4:  [low + 10 + medium + 6 + high + 8 + high + 9 + low + 7]",font=("Calibri", 11))
+        self.description_3.grid(row=self.trial3_row+6, column=3, columnspan=4, padx=5, pady=5)
+
+        self.description_3 = ttk.Label(self.trial3_lf, text="Trial5:  [high + 8 + high + 7 + low + 9 + medium + 6 + high + 10]",font=("Calibri", 11))
+        self.description_3.grid(row=self.trial3_row+7, column=3, columnspan=4, padx=5, pady=5)
+
+        self.description_3 = ttk.Label(self.trial3_lf, text="      Trial6:  [high + 8 + low + 10 + medium + 7 + medium + 6 + low + 9]",font=("Calibri", 11))
+        self.description_3.grid(row=self.trial3_row+8, column=3, columnspan=4, padx=5, pady=5)
 
         ### Experimental 
         # add trial3 experimental label frame
@@ -414,27 +414,19 @@ class GUI(ttk.Frame):
         self.title_3 = ttk.Label(self.trial3_exp_lf, text="Choose to Start the Task",font=("Calibri", 12, "bold"), bootstyle=PRIMARY)
         self.title_3.grid(row=self.trial3_row+0, column=0, padx=5, pady=5)
 
-
-        self.trial3_start_StinngVar_1 = ttk.StringVar(self.master)
+        self.trial3_start_StinngVar = ttk.StringVar(self.master)
         self.trial3_start_First = 'Select a task'
-        self.trial3_start_StinngVar_1.set(self.trial3_start_First)
-        self.trial3_start_Type = ["Automatic", "Left", "Right"]
-        self.trial3_start_Menu = ttk.OptionMenu(self.trial3_exp_lf, self.trial3_start_StinngVar_1, self.trial3_start_Type[0], *self.trial3_start_Type,)
+        self.trial3_start_StinngVar.set(self.trial3_start_First)
+        self.trial3_start_Type = ["Auto", "Trial 1", "Trial 2", "Trial 3", "Trial 4", "Trial 5", "Trial 6"]
+        self.trial3_start_Menu = ttk.OptionMenu(self.trial3_exp_lf, self.trial3_start_StinngVar, self.trial3_start_Type[0], *self.trial3_start_Type,)
         self.trial3_start_Menu.grid(row=self.trial3_row+0,column=1, padx=5, pady=5)
-
-        self.trial3_start_StinngVar_2 = ttk.StringVar(self.master)
-        self.trial3_start_First = 'Select a task'
-        self.trial3_start_StinngVar_2.set(self.trial3_start_First)
-        self.trial3_start_Type = ["Auto", "Trial 1", "Trial 2", "Trial 3", "Trial 4", "Trial 5", "Trial 6", "Trial 7", "Trial 8", "Trial 9"]
-        self.trial3_start_Menu = ttk.OptionMenu(self.trial3_exp_lf, self.trial3_start_StinngVar_2, self.trial3_start_Type[0], *self.trial3_start_Type,)
-        self.trial3_start_Menu.grid(row=self.trial3_row+0,column=2, padx=5, pady=5)
 
         # add start and stop button
         self.trial3_button = ttk.Button(self.trial3_exp_lf, text="Start", command=self.trial3_Start, bootstyle=DANGER)
-        self.trial3_button.grid(row=self.trial3_row+0,column=3, padx=5, pady=5)
+        self.trial3_button.grid(row=self.trial3_row+0,column=2, padx=5, pady=5)
 
         self.trial3_button_2 = ttk.Button(self.trial3_exp_lf, text="Stop", command=self.trial3_stop, bootstyle=DANGER)
-        self.trial3_button_2.grid(row=self.trial3_row+0,column=4, padx=5, pady=5)
+        self.trial3_button_2.grid(row=self.trial3_row+0,column=3, padx=5, pady=5)
 
         # time and force
         self.title_3 = ttk.Label(self.trial3_exp_lf, text="Current Trial: ",font=("Calibri", 12, "bold"))
@@ -490,86 +482,237 @@ class GUI(ttk.Frame):
             bar_matrix = []
             bar_matrix.append(12)
             for i in range(11):
-                bar_matrix.append(int(((i*2)/21.2)*718+12))
-                bar_matrix.append(int(((i*2+2)/21.2)*718+12))
+                bar_matrix.append(int(((i*2)/19.2)*718+12))
+                bar_matrix.append(int(((i*2+2)/19.2)*718+12))
         
-        elif mode == "trial3_low":
-            self.latin_square = [[6.0, 6.5, 7.0],
-                                 [6.5, 7.0, 7.5],
-                                 [7.0, 7.5, 8.0],
-                                 [7.5, 8.0, 8.5],
-                                 [8.0, 8.5, 9.0],
-                                 [8.5, 9.0, 9.5],
-                                 [9.0, 9.5, 10.0],
-                                 [9.5, 10.0, 6.0],
-                                 [10.0, 6.0, 6.5],]
+        elif mode == "trial3_block1":
+            # [low + 9 + medium + 6 + low + 7 + low + 10 + medium + 8]
+            rest_list = [9, 6, 7, 10, 8]
+            
+            # medium on
+            in_1 = 1.5
+            out_1 = in_1+rest_list[0] # off
 
-            # bar time
-            start = 2.0            
-            out_1 = start+2.0             
-            relax_1 = out_1+self.latin_square[0][0]     
-            out_2 = relax_1+2.0
-            relax_2 = out_2+self.latin_square[0][1] 
-            out_3 = relax_2+2.0 
-            relax_3 = out_3+self.latin_square[0][2]
+            in_2 = out_1+1.5
+            out_2 = in_2+rest_list[1] # off
+
+            in_3 = out_2+1.5
+            out_3 = in_3+rest_list[2] # off
+
+            in_4 = out_3+1.5
+            out_4 = in_4+rest_list[3] # off
+
+            in_5 = out_4+1.5
+            out_5 = in_5+rest_list[4] # off
               
             
             # insert bar time into the matrix
             
             bar_matrix = []
-            bar_matrix.append(12)
-            bar_matrix.append(int((start/relax_3)*718+12))
-            bar_matrix.append(int((out_1/relax_3)*718+12))
-            bar_matrix.append(int((relax_1/relax_3)*718+12))
-            bar_matrix.append(int((out_2/relax_3)*718+12))
-            bar_matrix.append(int((relax_2/relax_3)*718+12))
-            bar_matrix.append(int((out_3/relax_3)*718+12))
+            start_bar = 12
+            bar_max = 748
+            bar_matrix.append(start_bar)
+            bar_matrix.append(int((in_1/out_5)*bar_max+start_bar))
+            bar_matrix.append(int((out_1/out_5)*bar_max+start_bar))
+            bar_matrix.append(int((in_2/out_5)*bar_max+start_bar))
+            bar_matrix.append(int((out_2/out_5)*bar_max+start_bar))
+            bar_matrix.append(int((in_3/out_5)*bar_max+start_bar))
+            bar_matrix.append(int((out_3/out_5)*bar_max+start_bar))
+            bar_matrix.append(int((in_4/out_5)*bar_max+start_bar))
+            bar_matrix.append(int((out_4/out_5)*bar_max+start_bar))
+            bar_matrix.append(int((in_5/out_5)*bar_max+start_bar))
+            bar_matrix.append(int((out_5/out_5)*bar_max+start_bar))
 
-        elif mode == "trial3_medium":
+        elif mode == "trial3_block2":
+            # [high + 6 + low + 8 + high + 10 + low + 9 + medium + 7]
+            rest_list = [6, 8, 10, 9, 7]
+            
+            # medium on
+            in_1 = 1.5
+            out_1 = in_1+rest_list[0] # off
 
-            # bar time
-            start = 2.0            
-            out_1 = start+2.0             
-            relax_1 = out_1+self.latin_square[1][0]     
-            out_2 = relax_1+2.0
-            relax_2 = out_2+self.latin_square[1][1] 
-            out_3 = relax_2+2.0 
-            relax_3 = out_3+self.latin_square[1][2]
+            in_2 = out_1+1.5
+            out_2 = in_2+rest_list[1] # off
+
+            in_3 = out_2+1.5
+            out_3 = in_3+rest_list[2] # off
+
+            in_4 = out_3+1.5
+            out_4 = in_4+rest_list[3] # off
+
+            in_5 = out_4+1.5
+            out_5 = in_5+rest_list[4] # off
               
             
             # insert bar time into the matrix
             
             bar_matrix = []
-            bar_matrix.append(12)
-            bar_matrix.append(int((start/relax_3)*718+12))
-            bar_matrix.append(int((out_1/relax_3)*718+12))
-            bar_matrix.append(int((relax_1/relax_3)*718+12))
-            bar_matrix.append(int((out_2/relax_3)*718+12))
-            bar_matrix.append(int((relax_2/relax_3)*718+12))
-            bar_matrix.append(int((out_3/relax_3)*718+12))
+            start_bar = 12
+            bar_max = 748
+            bar_matrix.append(start_bar)
+            bar_matrix.append(int((in_1/out_5)*bar_max+start_bar))
+            bar_matrix.append(int((out_1/out_5)*bar_max+start_bar))
+            bar_matrix.append(int((in_2/out_5)*bar_max+start_bar))
+            bar_matrix.append(int((out_2/out_5)*bar_max+start_bar))
+            bar_matrix.append(int((in_3/out_5)*bar_max+start_bar))
+            bar_matrix.append(int((out_3/out_5)*bar_max+start_bar))
+            bar_matrix.append(int((in_4/out_5)*bar_max+start_bar))
+            bar_matrix.append(int((out_4/out_5)*bar_max+start_bar))
+            bar_matrix.append(int((in_5/out_5)*bar_max+start_bar))
+            bar_matrix.append(int((out_5/out_5)*bar_max+start_bar))
         
-        elif mode == "trial3_high":
-    
-            # bar time
-            start = 2.0            
-            out_1 = start+2.0             
-            relax_1 = out_1+self.latin_square[2][0]     
-            out_2 = relax_1+2.0
-            relax_2 = out_2+self.latin_square[2][1] 
-            out_3 = relax_2+2.0 
-            relax_3 = out_3+self.latin_square[2][2]
+        elif mode == "trial3_block3":
+            # [high + 7 + medium + 10 + medium + 6 + high + 8 + medium + 9]
+            rest_list = [7, 10, 6, 8, 9]
+            
+            # medium on
+            in_1 = 1.5
+            out_1 = in_1+rest_list[0] # off
+
+            in_2 = out_1+1.5
+            out_2 = in_2+rest_list[1] # off
+
+            in_3 = out_2+1.5
+            out_3 = in_3+rest_list[2] # off
+
+            in_4 = out_3+1.5
+            out_4 = in_4+rest_list[3] # off
+
+            in_5 = out_4+1.5
+            out_5 = in_5+rest_list[4] # off
               
             
             # insert bar time into the matrix
             
             bar_matrix = []
-            bar_matrix.append(12)
-            bar_matrix.append(int((start/relax_3)*718+12))
-            bar_matrix.append(int((out_1/relax_3)*718+12))
-            bar_matrix.append(int((relax_1/relax_3)*718+12))
-            bar_matrix.append(int((out_2/relax_3)*718+12))
-            bar_matrix.append(int((relax_2/relax_3)*718+12))
-            bar_matrix.append(int((out_3/relax_3)*718+12))
+            start_bar = 30
+            bar_max = 748
+            bar_matrix.append(start_bar)
+            bar_matrix.append(int((in_1/out_5)*bar_max+start_bar))
+            bar_matrix.append(int((out_1/out_5)*bar_max+start_bar))
+            bar_matrix.append(int((in_2/out_5)*bar_max+start_bar))
+            bar_matrix.append(int((out_2/out_5)*bar_max+start_bar))
+            bar_matrix.append(int((in_3/out_5)*bar_max+start_bar))
+            bar_matrix.append(int((out_3/out_5)*bar_max+start_bar))
+            bar_matrix.append(int((in_4/out_5)*bar_max+start_bar))
+            bar_matrix.append(int((out_4/out_5)*bar_max+start_bar))
+            bar_matrix.append(int((in_5/out_5)*bar_max+start_bar))
+            bar_matrix.append(int((out_5/out_5)*bar_max+start_bar))
+        
+        elif mode == "trial3_block4":
+            # [low + 10 + high + 6 + high + 8 + medium + 9 + high + 7]
+            rest_list = [10, 6, 8, 9, 7]
+            
+            # medium on
+            in_1 = 1.5
+            out_1 = in_1+rest_list[0] # off
+
+            in_2 = out_1+1.5
+            out_2 = in_2+rest_list[1] # off
+
+            in_3 = out_2+1.5
+            out_3 = in_3+rest_list[2] # off
+
+            in_4 = out_3+1.5
+            out_4 = in_4+rest_list[3] # off
+
+            in_5 = out_4+1.5
+            out_5 = in_5+rest_list[4] # off
+              
+            
+            # insert bar time into the matrix
+            
+            bar_matrix = []
+            start_bar = 12
+            bar_max = 748
+            bar_matrix.append(start_bar)
+            bar_matrix.append(int((in_1/out_5)*bar_max+start_bar))
+            bar_matrix.append(int((out_1/out_5)*bar_max+start_bar))
+            bar_matrix.append(int((in_2/out_5)*bar_max+start_bar))
+            bar_matrix.append(int((out_2/out_5)*bar_max+start_bar))
+            bar_matrix.append(int((in_3/out_5)*bar_max+start_bar))
+            bar_matrix.append(int((out_3/out_5)*bar_max+start_bar))
+            bar_matrix.append(int((in_4/out_5)*bar_max+start_bar))
+            bar_matrix.append(int((out_4/out_5)*bar_max+start_bar))
+            bar_matrix.append(int((in_5/out_5)*bar_max+start_bar))
+            bar_matrix.append(int((out_5/out_5)*bar_max+start_bar))
+        
+        elif mode == "trial3_block5":
+            # [high + 8 + low + 7 + low + 9 + high + 6 + medium + 10]
+            rest_list = [8, 7, 9, 6, 10]
+            
+            # medium on
+            in_1 = 1.5
+            out_1 = in_1+rest_list[0] # off
+
+            in_2 = out_1+1.5
+            out_2 = in_2+rest_list[1] # off
+
+            in_3 = out_2+1.5
+            out_3 = in_3+rest_list[2] # off
+
+            in_4 = out_3+1.5
+            out_4 = in_4+rest_list[3] # off
+
+            in_5 = out_4+1.5
+            out_5 = in_5+rest_list[4] # off
+              
+            
+            # insert bar time into the matrix
+            
+            bar_matrix = []
+            start_bar = 12
+            bar_max = 748
+            bar_matrix.append(start_bar)
+            bar_matrix.append(int((in_1/out_5)*bar_max+start_bar))
+            bar_matrix.append(int((out_1/out_5)*bar_max+start_bar))
+            bar_matrix.append(int((in_2/out_5)*bar_max+start_bar))
+            bar_matrix.append(int((out_2/out_5)*bar_max+start_bar))
+            bar_matrix.append(int((in_3/out_5)*bar_max+start_bar))
+            bar_matrix.append(int((out_3/out_5)*bar_max+start_bar))
+            bar_matrix.append(int((in_4/out_5)*bar_max+start_bar))
+            bar_matrix.append(int((out_4/out_5)*bar_max+start_bar))
+            bar_matrix.append(int((in_5/out_5)*bar_max+start_bar))
+            bar_matrix.append(int((out_5/out_5)*bar_max+start_bar))
+        
+        elif mode == "trial3_block6":
+            # [high + 8 + low + 10 + medium + 7 + medium + 6 + low + 9]
+            rest_list = [8, 10, 7, 6, 9]
+            
+            # medium on
+            in_1 = 1.5
+            out_1 = in_1+rest_list[0] # off
+
+            in_2 = out_1+1.5
+            out_2 = in_2+rest_list[1] # off
+
+            in_3 = out_2+1.5
+            out_3 = in_3+rest_list[2] # off
+
+            in_4 = out_3+1.5
+            out_4 = in_4+rest_list[3] # off
+
+            in_5 = out_4+1.5
+            out_5 = in_5+rest_list[4] # off
+              
+            
+            # insert bar time into the matrix
+            
+            bar_matrix = []
+            start_bar = 12
+            bar_max = 748
+            bar_matrix.append(start_bar)
+            bar_matrix.append(int((in_1/out_5)*bar_max+start_bar))
+            bar_matrix.append(int((out_1/out_5)*bar_max+start_bar))
+            bar_matrix.append(int((in_2/out_5)*bar_max+start_bar))
+            bar_matrix.append(int((out_2/out_5)*bar_max+start_bar))
+            bar_matrix.append(int((in_3/out_5)*bar_max+start_bar))
+            bar_matrix.append(int((out_3/out_5)*bar_max+start_bar))
+            bar_matrix.append(int((in_4/out_5)*bar_max+start_bar))
+            bar_matrix.append(int((out_4/out_5)*bar_max+start_bar))
+            bar_matrix.append(int((in_5/out_5)*bar_max+start_bar))
+            bar_matrix.append(int((out_5/out_5)*bar_max+start_bar))
+
 
 
         return bar_matrix    
@@ -579,12 +722,13 @@ class GUI(ttk.Frame):
     # check if all the data has been submitted in the frame 0
     def checkFields_frame0(self):
         result = []
-        for i in range(4):
+        for i in range(3):
             result.append(self.subject_result[i].get())
         for i in result:
             if i == '':
                 self.showError()
-                break      
+                return False
+        return True      
 
     def trial0_start(self):
         # save the data
@@ -597,9 +741,9 @@ class GUI(ttk.Frame):
         trial0_exp_saved.append(self.trial0_result[0].get())
         trial0_exp_saved.append(self.trial0_start_StinngVar.get())
 
-        is_correct = True
+        is_correct = False
         if self.checkFields_frame0():
-            is_correct = False
+            is_correct = True
 
         if is_correct:
             trial0_control_Final = dict(zip(trial0_exp_header, trial0_exp_saved))
@@ -610,28 +754,20 @@ class GUI(ttk.Frame):
         # save the data
         trial0_saved = []
         trial0_header = []
-        for i in range(8):
+        for i in range(5):
             trial0_header.append(self.subjectInfo[i])
 
         # save the subject information data
-        for i in range(4):
+        for i in range(3):
             trial0_saved.append(self.subject_result[i].get())
 
-        trial0_saved.append(self.genders_StinngVar.get())
-        trial0_saved.append(self.diabetes_StinngVar.get())
+        trial0_saved.insert(2, self.genders_StinngVar.get())
         trial0_saved.append(self.domArm_StinngVar.get())
-        trial0_saved.append(self.TestArm_StinngVar.get())
-        
-        # reset the subject saved list
-        disabtes = trial0_saved.pop(2)
-        subject_type = trial0_saved.pop(2)
-        trial0_saved.insert(3, disabtes)
-        trial0_saved.insert(5, subject_type)
 
         # make sure all data has been input
-        is_correct = True
+        is_correct = False
         if self.checkFields_frame0():
-            is_correct = False
+            is_correct = True
         
         # if all data has been submitted correctly
         if is_correct:
@@ -643,110 +779,99 @@ class GUI(ttk.Frame):
 
             print(trial0_Final)
 
-            for i in [self.trial1_lf]:
+            for i in [self.trial1_lf, self.trial2_lf]:
     
                 self.input_subj = ttk.Label(i, text=trial0_saved[0],font=("Calibri", 10), bootstyle=SUCCESS)
-                self.input_subj.grid(row=self.trial2_row+2, column=1, padx=5, pady=5)              
+                self.input_subj.grid(row=self.trial1_row+3, column=1, padx=5, pady=5)              
 
                 self.input_subj = ttk.Label(i, text=trial0_saved[1],font=("Calibri", 10), bootstyle=SUCCESS)
-                self.input_subj.grid(row=self.trial2_row+2, column=3, padx=5, pady=5)   
+                self.input_subj.grid(row=self.trial1_row+3, column=3, padx=5, pady=5)   
 
                 self.input_subj = ttk.Label(i, text=trial0_saved[2],font=("Calibri", 10), bootstyle=SUCCESS)
-                self.input_subj.grid(row=self.trial2_row+3, column=1, padx=5, pady=5) 
+                self.input_subj.grid(row=self.trial1_row+4, column=1, padx=5, pady=5) 
 
                 self.input_subj = ttk.Label(i, text=trial0_saved[3],font=("Calibri", 10), bootstyle=SUCCESS)
-                self.input_subj.grid(row=self.trial2_row+3, column=3, padx=5, pady=5) 
+                self.input_subj.grid(row=self.trial1_row+4, column=3, padx=5, pady=5) 
 
-                self.input_subj = ttk.Label(i, text=trial0_saved[5],font=("Calibri", 10), bootstyle=SUCCESS)
-                self.input_subj.grid(row=self.trial2_row+4, column=1, padx=5, pady=5) 
-
-                self.input_subj = ttk.Label(i, text=trial0_saved[7],font=("Calibri", 10), bootstyle=SUCCESS)
-                self.input_subj.grid(row=self.trial2_row+4, column=3, padx=5, pady=5)  
+                self.input_subj = ttk.Label(i, text=trial0_saved[4],font=("Calibri", 10), bootstyle=SUCCESS)
+                self.input_subj.grid(row=self.trial1_row+5, column=1, padx=5, pady=5) 
 
 
     # ---------------------------------------functions in frame 1---------------------------------------
 
     def trial1_Start(self):
+        self.trial1_iteration()
+
+    def trial1_iteration(self):
+        self.afterid_1.set(self.after(100, self.trial1_iteration))
+        # add new label
+        if not self.in_queue.empty():
+            self.Ext_queue = self.in_queue.get_nowait()
+            print(self.Program_start)
+
+            if self.Ext_queue == 1:
+                self.Program_start = True
+                self.after_cancel(self.afterid_1.get())
+                self.trial2_program()
+                self.Program_start = False
+
+    def trial1_program(self):
         self.pause_bar = False
         self.stop_bar = False
         # save the data
         trial1_saved = []
-
         trial1_header = []
-        trial1_header.append('Experiment Mode')
         trial1_header.append('Experiment Status')
 
         # make sure all data has been input
-        is_correct = True
+        is_correct = False
         if self.checkFields_frame0():
-            is_correct = False
+            is_correct = True
 
         # if all data has been submitted correctly
         if is_correct:
-            if self.trial1_start_StinngVar_1.get() == "Automatic" and self.trial1_start_StinngVar_2.get() == "Auto":
-                self.trial1_break = False
-                for set_count in range(1,3):
-                    for trial_count in range(1,11):
-                        if self.trial1_break:
-                            break
-                        if set_count == 1:
-                            trial1_saved.append("Left")
-                        else:
-                            trial1_saved.append("Right")
-                        
-                        trial1_saved.append("Trial " + str(trial_count))
-                        trial1_maxFinal = dict(zip(trial1_header, trial1_saved))
-                        
-                        if self.trial_finish or self.is_start_trial1:
-                            self.transmit("Task1", trial1_maxFinal)
-                            print(trial1_maxFinal)
-                            self.is_start_trial1 = False
-                            trial1_saved.pop()
-                            trial1_saved.pop()
-
-                        # delete the old bar
-                        self.delete_trial1_label()
-
-                        # add label on the bar
-                        self.add_trial1_status(set_count,trial_count) 
-
-                        # start the progressive bar
-                        self.start_trial1_bar(800)
-
-                        time.sleep(5)
-
-            elif self.trial1_start_StinngVar_1.get()[0] != "A" and self.trial1_start_StinngVar_2.get()[0] != "A":
-                trial1_saved.append(self.trial1_start_StinngVar_1.get())
-                trial1_saved.append(self.trial1_start_StinngVar_2.get())
-
+            self.trial1_break = False
+            for trial_count in range(1,9):
+                if self.trial1_break:
+                    break
+                
+                trial1_saved.append("Trial " + str(trial_count))
                 trial1_maxFinal = dict(zip(trial1_header, trial1_saved))
+                
                 if self.trial_finish or self.is_start_trial1:
                     self.transmit("Task1", trial1_maxFinal)
-                    self.is_start_trial1 = False
                     print(trial1_maxFinal)
+                    self.is_start_trial1 = False
+                    trial1_saved.pop()
+                    # trial1_saved.pop()
+
                 # delete the old bar
                 self.delete_trial1_label()
+                if self.is_rest_bar:
+                    self.rest_bar.place_forget()
 
-                if self.trial1_start_StinngVar_1.get() == "Left":
-                    # add label on the bar
-                    self.add_trial1_status(1,int(self.trial1_start_StinngVar_2.get()[6]))  
-                else:
-                    self.add_trial1_status(2,int(self.trial1_start_StinngVar_2.get()[6]))
+                # add label on the bar
+                self.add_trial1_status(trial_count) 
+                self.add_trial1()
 
-                # start the progressive bar
-                self.start_trial1_bar(800)      
-            else:
-                print("retrycancel: ",Messagebox.show_error(title='Oh no', message="Please choose correct task!"))   
+                self.start_trial1_bar(475)
 
-    def add_trial1_status(self, set_number, trial_number):
-        if set_number == 1:
-            self.title_1_current_trial = ttk.Label(self.trial1_exp_lf, text="Left "+" Trial "+ str(trial_number),font=("Calibri", 12, "bold"), bootstyle=WARNING)
-        else:
-            self.title_1_current_trial = ttk.Label(self.trial1_exp_lf, text="Right "+" Trial "+ str(trial_number),font=("Calibri", 12, "bold"), bootstyle=WARNING)
-        self.title_1_current_trial.grid(row=self.trial1_row+2, column=1, padx=5, pady=5)
+                # rest for 30 s
+                self.delete_trial1_label()
+                self.rest_bar = ttk.Label(self.frame1, text="Rest for 30 seconds",font=("Calibri", 12, "bold"), bootstyle=SUCCESS)
+                self.rest_bar.place(x=300,y=530)
+
+                self.is_rest_bar = True
+
+                self.start_trial1_bar(475)
+
+    def add_trial1_status(self, trial_number):
+
+        self.title_1_current_trial = ttk.Label(self.trial1_exp_lf, text="Right "+" Trial "+ str(trial_number),font=("Calibri", 12, "bold"), bootstyle=WARNING)
+        self.title_1_current_trial.grid(row=self.trial1_row+1, column=1, padx=5, pady=5)
 
         self.title_1_status_1 = ttk.Label(self.trial1_exp_lf, text="Strong force",font=("Calibri", 12, "bold"), bootstyle=WARNING)
-        self.title_1_status_1.grid(row=self.trial1_row+2, column=3, padx=5, pady=5)   
+        self.title_1_status_1.grid(row=self.trial1_row+1, column=3, padx=5, pady=5)   
 
         self.is_trial1_status = True
 
@@ -754,10 +879,13 @@ class GUI(ttk.Frame):
         if self.is_trial1_status:
             self.title_1_current_trial.grid_forget()
             self.title_1_status_1.grid_forget()
+        if self.is_trial1:
+                self.delete_trial1_bar()
 
         self.is_trial1_status = False
 
     def trial1_stop(self):
+        self.Program_start = False
         self.stop_bar = True
         self.trial_finish = True
         self.trial1_break = True
@@ -766,6 +894,8 @@ class GUI(ttk.Frame):
         self.title_1_fg = ttk.Floodgauge(self.trial1_exp_lf, bootstyle=INFO, length=750, maximum=self.trial1_bar_max, font=("Calibri", 12, 'bold'),)
         self.title_1_fg.grid(row=self.trial1_row+8, column=0, columnspan=5, padx=5, pady=3)  
         self.title_1_fg['value'] = 0
+        self.transmit("Stop", "stop")
+        print("Stop the trial !")
 
     def start_trial1_bar(self, max):
         # start the progressive bar
@@ -793,163 +923,178 @@ class GUI(ttk.Frame):
                 
             if self.title_1_fg['value'] == max:
                 self.trial_finish = True
-                if self.trial1_start_StinngVar_1.get() != "Automatic":
-                    self.trial1_stop()
-
 
     def add_trial1(self):
         self.trial1_start_pos = self.calculate_bar("trial1")
 
-        self.trial1_1 = ttk.Label(self.frame1, text="| Start ",font=("Calibri", 10, "bold"))
+        self.trial1_1 = ttk.Label(self.frame1, text="|1:On  Off",font=("Calibri", 10, "bold"))
         self.trial1_1.place(x=self.trial1_start_pos[0],y=495)  
 
-        self.trial1_2 = ttk.Label(self.frame1, text="| out ",font=("Calibri", 10, "bold"))
+        self.trial1_2 = ttk.Label(self.frame1, text="|2:On  Off",font=("Calibri", 10, "bold"))
         self.trial1_2.place(x=self.trial1_start_pos[2],y=495) 
 
-        self.trial1_3 = ttk.Label(self.frame1, text="| out ",font=("Calibri", 10, "bold"))
+        self.trial1_3 = ttk.Label(self.frame1, text="|3:On  Off",font=("Calibri", 10, "bold"))
         self.trial1_3.place(x=self.trial1_start_pos[4],y=495) 
 
-        self.trial1_4 = ttk.Label(self.frame1, text="| out ",font=("Calibri", 10, "bold"))
+        self.trial1_4 = ttk.Label(self.frame1, text="|4:On  Off",font=("Calibri", 10, "bold"))
         self.trial1_4.place(x=self.trial1_start_pos[6],y=495) 
 
-        self.trial1_5 = ttk.Label(self.frame1, text="| out ",font=("Calibri", 10, "bold"))
+        self.trial1_5 = ttk.Label(self.frame1, text="|5:On  Off",font=("Calibri", 10, "bold"))
         self.trial1_5.place(x=self.trial1_start_pos[8],y=495) 
 
-        self.trial1_5 = ttk.Label(self.frame1, text="| out ",font=("Calibri", 10, "bold"))
-        self.trial1_5.place(x=self.trial1_start_pos[10],y=495) 
+        self.trial1_6 = ttk.Label(self.frame1, text="|6:On  Off",font=("Calibri", 10, "bold"))
+        self.trial1_6.place(x=self.trial1_start_pos[10],y=495) 
 
-        self.trial1_5 = ttk.Label(self.frame1, text="| out ",font=("Calibri", 10, "bold"))
-        self.trial1_5.place(x=self.trial1_start_pos[12],y=495) 
+        self.trial1_7 = ttk.Label(self.frame1, text="|7:On  Off",font=("Calibri", 10, "bold"))
+        self.trial1_7.place(x=self.trial1_start_pos[12],y=495) 
 
-        self.trial1_5 = ttk.Label(self.frame1, text="| out ",font=("Calibri", 10, "bold"))
-        self.trial1_5.place(x=self.trial1_start_pos[14],y=495) 
+        self.trial1_8 = ttk.Label(self.frame1, text="|8:On  Off",font=("Calibri", 10, "bold"))
+        self.trial1_8.place(x=self.trial1_start_pos[14],y=495) 
 
-        self.trial1_5 = ttk.Label(self.frame1, text="| out ",font=("Calibri", 10, "bold"))
-        self.trial1_5.place(x=self.trial1_start_pos[16],y=495) 
+        self.trial1_9 = ttk.Label(self.frame1, text="|9:On  Off",font=("Calibri", 10, "bold"))
+        self.trial1_9.place(x=self.trial1_start_pos[16],y=495) 
 
-        self.trial1_5 = ttk.Label(self.frame1, text="| out ",font=("Calibri", 10, "bold"))
-        self.trial1_5.place(x=self.trial1_start_pos[18],y=495) 
+        self.trial1_10 = ttk.Label(self.frame1, text="|10:On  Off",font=("Calibri", 10, "bold"))
+        self.trial1_10.place(x=self.trial1_start_pos[18],y=495) 
 
-        self.trial1_5 = ttk.Label(self.frame1, text="| out ",font=("Calibri", 10, "bold"))
-        self.trial1_5.place(x=self.trial1_start_pos[20],y=495) 
-
-        self.trial1_5 = ttk.Label(self.frame1, text="| End ",font=("Calibri", 10, "bold"))
-        self.trial1_5.place(x=self.trial1_start_pos[22],y=495) 
+        self.trial1_11 = ttk.Label(self.frame1, text="| ",font=("Calibri", 10, "bold"))
+        self.trial1_11.place(x=self.trial1_start_pos[20],y=495) 
 
         self.is_trial1 = True
+    
+    def delete_trial1_bar(self):
+        # delete the trial 1 bar
+        self.trial1_1.place_forget()
+        self.trial1_2.place_forget()
+        self.trial1_3.place_forget()
+        self.trial1_4.place_forget()
+        self.trial1_5.place_forget()
+        self.trial1_6.place_forget()
+        self.trial1_7.place_forget()
+        self.trial1_8.place_forget()
+        self.trial1_9.place_forget()
+        self.trial1_10.place_forget()
+        self.trial1_11.place_forget()
+
+        self.is_trial1 = False
 
     # ---------------------------------------functions in frame 2---------------------------------------
+
     def trial2_Start(self):
+        # clear the queue data
+        while not self.in_queue.empty():
+            self.in_queue.get() 
+        self.BNC_2 = ttk.Label(self.frame2, text="Waiting for the signal",font=("Calibri", 12, "bold"), bootstyle=SUCCESS)
+        self.BNC_2.place(x=300,y=530)
+        self.trial2_iteration()
+
+
+    def trial2_iteration(self):
+        self.afterid_2.set(self.after(1, self.trial2_iteration))
+        # add new label
+        if not self.in_queue.empty():
+            self.Ext_queue = self.in_queue.get_nowait()
+
+            if self.Ext_queue == 1:
+                self.Program_start = True
+                self.after_cancel(self.afterid_2.get())
+                self.trial2_program()
+                self.Program_start = False
+
+
+    
+    def trial2_program(self):
+        self.BNC_2.place_forget()
         self.pause_bar = False
         self.stop_bar = False
         # save the data
         trial2_saved = []
-
         trial2_header = []
-        trial2_header.append('Experiment Mode')
+        trial2_header.append('Experiment Status')
 
         # make sure all data has been input
-        is_correct = True
+        is_correct = False
         if self.checkFields_frame0():
-            is_correct = False
+            is_correct = True
 
         # if all data has been submitted correctly
         if is_correct:
-            trial2_saved.append(self.trial2_input.get())  
-            trial2_maxFinal = dict(zip(trial2_header, trial2_saved))
-            self.transmit("Task2", trial2_maxFinal)
-            print(trial2_maxFinal)
+            # rest for 30 s
+            self.delete_trial2_label()
+            self.rest_bar = ttk.Label(self.frame2, text="Rest for 30 seconds",font=("Calibri", 12, "bold"), bootstyle=SUCCESS)
+            self.rest_bar.place(x=300,y=530)
 
-    def add_trial2_status(self, set_number, trial_number):
-        if set_number == 1:
-            self.title_1_current_trial = ttk.Label(self.trial2_exp_lf, text="Left "+" Trial "+ str(trial_number),font=("Calibri", 12, "bold"), bootstyle=WARNING)
-        else:
-            self.title_1_current_trial = ttk.Label(self.trial2_exp_lf, text="Right "+" Trial "+ str(trial_number),font=("Calibri", 12, "bold"), bootstyle=WARNING)
-        self.title_1_current_trial.grid(row=self.trial2_row+1, column=1, padx=5, pady=5)
+            self.is_rest_bar = True
 
-        if trial_number == 1:
-            self.title_1_status_1 = ttk.Label(self.trial2_exp_lf, text="Low Medium High order",font=("Calibri", 12, "bold"), bootstyle=WARNING)
-            self.title_1_status_1.grid(row=self.trial2_row+1, column=3, padx=5, pady=5)   
+            self.trial2_break = False
+            self.start_trial2_bar(475)
+            
 
-            self.title_1_status_2 = ttk.Label(self.trial2_exp_lf, text="6.0  6.5  7.0        ",font=("Calibri", 12, "bold"), bootstyle=WARNING)
-            self.title_1_status_2.grid(row=self.trial2_row+2, column=3, padx=5, pady=5) 
-        
-        elif trial_number == 2:
-            self.title_1_status_1 = ttk.Label(self.trial2_exp_lf, text="Medium High Low order",font=("Calibri", 12, "bold"), bootstyle=WARNING)
-            self.title_1_status_1.grid(row=self.trial2_row+1, column=3, padx=5, pady=5)   
+            for trial_count in range(1,7):
+                if self.trial2_break:
+                    break
+                
+                trial2_saved.append("Trial " + str(trial_count))
+                trial2_maxFinal = dict(zip(trial2_header, trial2_saved))
+                
+                if self.trial_finish or self.is_start_trial2:
+                    self.transmit("Task2", trial2_maxFinal)
+                    print(trial2_maxFinal)
+                    self.is_start_trial2 = False
+                    trial2_saved.pop()
 
-            self.title_1_status_2 = ttk.Label(self.trial2_exp_lf, text="6.5  7.0  7.5        ",font=("Calibri", 12, "bold"), bootstyle=WARNING)
-            self.title_1_status_2.grid(row=self.trial2_row+2, column=3, padx=5, pady=5) 
-        
-        elif trial_number == 3:
-            self.title_1_status_1 = ttk.Label(self.trial2_exp_lf, text="High Low Medium order",font=("Calibri", 12, "bold"), bootstyle=WARNING)
-            self.title_1_status_1.grid(row=self.trial2_row+1, column=3, padx=5, pady=5)   
+                # delete the old bar
+                self.delete_trial2_label()
+                if self.is_rest_bar:
+                    self.rest_bar.place_forget()
 
-            self.title_1_status_2 = ttk.Label(self.trial2_exp_lf, text="7.0  7.5  8.0        ",font=("Calibri", 12, "bold"), bootstyle=WARNING)
-            self.title_1_status_2.grid(row=self.trial2_row+2, column=3, padx=5, pady=5) 
+                # add label on the bar
+                self.add_trial2_status(trial_count) 
+                self.add_trial2()
 
-        elif trial_number == 4:
-            self.title_1_status_1 = ttk.Label(self.trial2_exp_lf, text="Low Medium High order",font=("Calibri", 12, "bold"), bootstyle=WARNING)
-            self.title_1_status_1.grid(row=self.trial2_row+1, column=3, padx=5, pady=5)   
+                # start the progressive bar
+                self.start_trial2_bar(475)
 
-            self.title_1_status_2 = ttk.Label(self.trial2_exp_lf, text="7.5  8.0  8.5        ",font=("Calibri", 12, "bold"), bootstyle=WARNING)
-            self.title_1_status_2.grid(row=self.trial2_row+2, column=3, padx=5, pady=5) 
-        
-        elif trial_number == 5:
-            self.title_1_status_1 = ttk.Label(self.trial2_exp_lf, text="Medium High Low order",font=("Calibri", 12, "bold"), bootstyle=WARNING)
-            self.title_1_status_1.grid(row=self.trial2_row+1, column=3, padx=5, pady=5)   
+                # rest for 30 s
+                self.delete_trial2_label()
+                self.rest_bar = ttk.Label(self.frame2, text="Rest for 30 seconds",font=("Calibri", 12, "bold"), bootstyle=SUCCESS)
+                self.rest_bar.place(x=300,y=530)
 
-            self.title_1_status_2 = ttk.Label(self.trial2_exp_lf, text="8.0  8.5  9.0        ",font=("Calibri", 12, "bold"), bootstyle=WARNING)
-            self.title_1_status_2.grid(row=self.trial2_row+2, column=3, padx=5, pady=5) 
-        
-        elif trial_number == 6:
-            self.title_1_status_1 = ttk.Label(self.trial2_exp_lf, text="High Low Medium order",font=("Calibri", 12, "bold"), bootstyle=WARNING)
-            self.title_1_status_1.grid(row=self.trial2_row+1, column=3, padx=5, pady=5)   
+                self.is_rest_bar = True
 
-            self.title_1_status_2 = ttk.Label(self.trial2_exp_lf, text="8.5  9.0  9.5        ",font=("Calibri", 12, "bold"), bootstyle=WARNING)
-            self.title_1_status_2.grid(row=self.trial2_row+2, column=3, padx=5, pady=5)
+                self.start_trial2_bar(475)
 
-        elif trial_number == 7:
-            self.title_1_status_1 = ttk.Label(self.trial2_exp_lf, text="Low Medium High order",font=("Calibri", 12, "bold"), bootstyle=WARNING)
-            self.title_1_status_1.grid(row=self.trial2_row+1, column=3, padx=5, pady=5)   
+    def add_trial2_status(self, trial_number):
 
-            self.title_1_status_2 = ttk.Label(self.trial2_exp_lf, text="9.0  9.5  10.0        ",font=("Calibri", 12, "bold"), bootstyle=WARNING)
-            self.title_1_status_2.grid(row=self.trial2_row+2, column=3, padx=5, pady=5) 
-        
-        elif trial_number == 8:
-            self.title_1_status_1 = ttk.Label(self.trial2_exp_lf, text="Medium High Low order",font=("Calibri", 12, "bold"), bootstyle=WARNING)
-            self.title_1_status_1.grid(row=self.trial2_row+1, column=3, padx=5, pady=5)   
+        self.title_2_current_trial = ttk.Label(self.trial2_exp_lf, text="Right "+" Trial "+ str(trial_number),font=("Calibri", 12, "bold"), bootstyle=WARNING)
+        self.title_2_current_trial.grid(row=self.trial2_row+1, column=1, padx=5, pady=5)
 
-            self.title_1_status_2 = ttk.Label(self.trial2_exp_lf, text="9.5  10.0  6.0        ",font=("Calibri", 12, "bold"), bootstyle=WARNING)
-            self.title_1_status_2.grid(row=self.trial2_row+2, column=3, padx=5, pady=5) 
-        
-        elif trial_number == 9:
-            self.title_1_status_1 = ttk.Label(self.trial2_exp_lf, text="High Low Medium order",font=("Calibri", 12, "bold"), bootstyle=WARNING)
-            self.title_1_status_1.grid(row=self.trial2_row+1, column=3, padx=5, pady=5)   
-
-            self.title_1_status_2 = ttk.Label(self.trial2_exp_lf, text="10.0  6.0  6.5        ",font=("Calibri", 12, "bold"), bootstyle=WARNING)
-            self.title_1_status_2.grid(row=self.trial2_row+2, column=3, padx=5, pady=5)
-
+        self.title_2_status_1 = ttk.Label(self.trial2_exp_lf, text="Strong force",font=("Calibri", 12, "bold"), bootstyle=WARNING)
+        self.title_2_status_1.grid(row=self.trial2_row+1, column=3, padx=5, pady=5)   
 
         self.is_trial2_status = True
 
     def delete_trial2_label(self):
         if self.is_trial2_status:
-            self.title_1_current_trial.grid_forget()
-            self.title_1_status_1.grid_forget()
-            self.title_1_status_2.grid_forget()
+            self.title_2_current_trial.grid_forget()
+            self.title_2_status_1.grid_forget()
+        if self.is_trial2:
+                self.delete_trial2_bar()
 
         self.is_trial2_status = False
 
     def trial2_stop(self):
+        self.Program_start = False
         self.stop_bar = True
         self.trial_finish = True
         self.trial2_break = True
         self.min_value = 0
         self.title_2_fg.grid_forget()
-        self.title_2_fg = ttk.Floodgauge(self.trial2_exp_lf, bootstyle=INFO, length=750, maximum=self.trial1_bar_max, font=("Calibri", 12, 'bold'),)
+        self.title_2_fg = ttk.Floodgauge(self.trial2_exp_lf, bootstyle=INFO, length=750, maximum=self.trial2_bar_max, font=("Calibri", 12, 'bold'),)
         self.title_2_fg.grid(row=self.trial2_row+8, column=0, columnspan=5, padx=5, pady=3)  
         self.title_2_fg['value'] = 0
+        self.transmit("Stop", "stop")
+        print("Stop the trial !")
 
     def start_trial2_bar(self, max):
         # start the progressive bar
@@ -978,9 +1123,84 @@ class GUI(ttk.Frame):
             if self.title_2_fg['value'] == max:
                 self.trial_finish = True
 
+    def add_trial2(self):
+        self.trial2_start_pos = self.calculate_bar("trial1")
+
+        self.trial2_1 = ttk.Label(self.frame2, text="|1:On  Off",font=("Calibri", 10, "bold"))
+        self.trial2_1.place(x=self.trial2_start_pos[0],y=495)  
+
+        self.trial2_2 = ttk.Label(self.frame2, text="|2:On  Off",font=("Calibri", 10, "bold"))
+        self.trial2_2.place(x=self.trial2_start_pos[2],y=495) 
+
+        self.trial2_3 = ttk.Label(self.frame2, text="|3:On  Off",font=("Calibri", 10, "bold"))
+        self.trial2_3.place(x=self.trial2_start_pos[4],y=495) 
+
+        self.trial2_4 = ttk.Label(self.frame2, text="|4:On  Off",font=("Calibri", 10, "bold"))
+        self.trial2_4.place(x=self.trial2_start_pos[6],y=495) 
+
+        self.trial2_5 = ttk.Label(self.frame2, text="|5:On  Off",font=("Calibri", 10, "bold"))
+        self.trial2_5.place(x=self.trial2_start_pos[8],y=495) 
+
+        self.trial2_6 = ttk.Label(self.frame2, text="|6:On  Off",font=("Calibri", 10, "bold"))
+        self.trial2_6.place(x=self.trial2_start_pos[10],y=495) 
+
+        self.trial2_7 = ttk.Label(self.frame2, text="|7:On  Off",font=("Calibri", 10, "bold"))
+        self.trial2_7.place(x=self.trial2_start_pos[12],y=495) 
+
+        self.trial2_8 = ttk.Label(self.frame2, text="|8:On  Off",font=("Calibri", 10, "bold"))
+        self.trial2_8.place(x=self.trial2_start_pos[14],y=495) 
+
+        self.trial2_9 = ttk.Label(self.frame2, text="|9:On  Off",font=("Calibri", 10, "bold"))
+        self.trial2_9.place(x=self.trial2_start_pos[16],y=495)
+
+        self.trial2_10 = ttk.Label(self.frame2, text="|10:On  Off",font=("Calibri", 10, "bold"))
+        self.trial2_10.place(x=self.trial2_start_pos[18],y=495)
+
+        self.trial2_11 = ttk.Label(self.frame2, text="| ",font=("Calibri", 10, "bold"))
+        self.trial2_11.place(x=self.trial2_start_pos[20],y=495) 
+
+        self.is_trial2 = True
+
+    def delete_trial2_bar(self):
+        # delete the trial 2 bar
+        self.trial2_1.place_forget()
+        self.trial2_2.place_forget()
+        self.trial2_3.place_forget()
+        self.trial2_4.place_forget()
+        self.trial2_5.place_forget()
+        self.trial2_6.place_forget()
+        self.trial2_7.place_forget()
+        self.trial2_8.place_forget()
+        self.trial2_9.place_forget()
+        self.trial2_10.place_forget()
+        self.trial2_11.place_forget()
+
+        self.is_trial2 = False
+
 
     # ---------------------------------------functions in frame 3---------------------------------------
     def trial3_Start(self):
+        # clear the queue data
+        while not self.in_queue.empty():
+            self.in_queue.get() 
+        self.BNC_3 = ttk.Label(self.frame3, text="Waiting for the signal",font=("Calibri", 12, "bold"), bootstyle=SUCCESS)
+        self.BNC_3.place(x=300,y=640)
+        self.trial3_iteration()
+    
+    def trial3_iteration(self):
+        self.afterid_3.set(self.after(100, self.trial3_iteration))
+        # add new label
+        if not self.in_queue.empty():
+            self.Ext_queue = self.in_queue.get_nowait()
+
+            if self.Ext_queue == 1:
+                self.Program_start = True
+                self.after_cancel(self.afterid_3.get())
+                self.trial3_program()
+                self.Program_start = False
+
+    def trial3_program(self):
+        self.BNC_3.place_forget()
         self.pause_bar = False
         self.stop_bar = False
         # save the data
@@ -988,172 +1208,162 @@ class GUI(ttk.Frame):
 
         trial3_header = []
         trial3_header.append('Experiment Mode')
-        trial3_header.append('Experiment Status')
 
         # make sure all data has been input
-        is_correct = True
+        is_correct = False
         if self.checkFields_frame0():
-            is_correct = False
+            is_correct = True
 
         # if all data has been submitted correctly
         if is_correct:
-            if self.trial3_start_StinngVar_1.get() == "Automatic" and self.trial3_start_StinngVar_2.get() == "Auto":
+
+            if self.trial3_start_StinngVar.get() == "Auto":
+                # rest for 30 s
+                self.delete_trial3_label()
+                self.rest_bar = ttk.Label(self.frame3, text="Rest for 30 seconds",font=("Calibri", 12, "bold"), bootstyle=SUCCESS)
+                self.rest_bar.place(x=300,y=640)
+                self.is_rest_bar = True
+
+                self.start_trial3_bar(475)
                 self.trial3_break = False
-                for set_count in range(1,3):
-                    for trial_count in range(1,10):
-                        if self.trial3_break:
-                            break
-                        if set_count == 1:
-                            trial3_saved.append("Left")
-                        else:
-                            trial3_saved.append("Right")
-                        
-                        trial3_saved.append("Trial " + str(trial_count))
-                        trial3_maxFinal = dict(zip(trial3_header, trial3_saved))
-                        
-                        if self.trial_finish or self.is_start_trial1:
-                            self.transmit("Task3", trial3_maxFinal)
-                            print(trial3_maxFinal)
-                            self.is_start_trial3 = False
-                            trial3_saved.pop()
-                            trial3_saved.pop()
+                for trial_count in range(1,7):
+                    # if click the stop button, then stop the trial
+                    if self.trial3_break:
+                        break
+                    
+                    # send the current status to the main loop
+                    trial3_saved.append("Trial " + str(trial_count))
+                    trial3_maxFinal = dict(zip(trial3_header, trial3_saved))
+                    if self.trial_finish or self.is_start_trial1:
+                        self.transmit("Task3", trial3_maxFinal)
+                        print(trial3_maxFinal)
+                        trial3_saved.pop()
+                        self.is_start_trial3 = False
 
-                        if trial_count == 1 or trial_count == 4 or trial_count == 7:
-                            self.delete_trial3_label()
-                            self.add_trial3_low()  
+                    # add the bar
+                    if trial_count == 1:
+                        self.delete_trial3_label()
+                        self.add_trial3_block1()
+                    elif trial_count == 2:
+                        self.delete_trial3_label()
+                        self.add_trial3_block2()
+                    elif trial_count == 3:
+                        self.delete_trial3_label()
+                        self.add_trial3_block3()
+                    elif trial_count == 4:
+                        self.delete_trial3_label()
+                        self.add_trial3_block4()
+                    elif trial_count == 5:
+                        self.delete_trial3_label()
+                        self.add_trial3_block5()
+                    elif trial_count == 6:
+                        self.delete_trial3_label()
+                        self.add_trial3_block6()
 
-                        elif trial_count == 2 or trial_count == 5 or trial_count == 8:
-                            self.delete_trial3_label()
-                            self.add_trial3_medium()
+                    # add label on the bar
+                    self.add_trial3_status(trial_count) 
 
-                        elif trial_count == 3 or trial_count == 6 or trial_count == 9:
-                            self.delete_trial3_label()
-                            self.add_trial3_high()
+                    # start the progressive bar
+                    self.start_trial3_bar(760)
 
-                        # add label on the bar
-                        self.add_trial3_status(set_count,trial_count) 
+                    # rest for 30 s
+                    self.delete_trial3_label()
+                    self.rest_bar = ttk.Label(self.frame3, text="Rest for 30 seconds",font=("Calibri", 12, "bold"), bootstyle=SUCCESS)
+                    self.rest_bar.place(x=300,y=640)
+                    self.is_rest_bar = True
 
-                        # start the progressive bar
-                        self.start_trial3_bar(500)
+                    self.start_trial3_bar(475)
 
-
-            elif self.trial3_start_StinngVar_1.get()[0] != "A" and self.trial3_start_StinngVar_2.get()[0] != "A":
-                trial3_saved.append(self.trial3_start_StinngVar_1.get())
-                trial3_saved.append(self.trial3_start_StinngVar_2.get())
-
+            elif self.trial3_start_StinngVar.get()[0] != "A":
+                # send the current status to the main loop
+                trial3_saved.append(self.trial3_start_StinngVar.get())
                 trial3_maxFinal = dict(zip(trial3_header, trial3_saved))
                 if self.trial_finish or self.is_start_trial3:
                     self.transmit("Task3", trial3_maxFinal)
                     self.is_start_trial3 = False
                     print(trial3_maxFinal)
-                # delete the old bar
-                trial_count = int(self.trial3_start_StinngVar_2.get()[6])
 
-                if trial_count == 1 or trial_count == 4 or trial_count == 7:
+                # get the block number
+                trial_count = int(self.trial3_start_StinngVar.get()[6])
+
+                # add the bar
+                if trial_count == 1:
                     self.delete_trial3_label()
-                    self.add_trial3_low()  
-
-                elif trial_count == 2 or trial_count == 5 or trial_count == 8:
+                    self.add_trial3_block1()
+                elif trial_count == 2:
                     self.delete_trial3_label()
-                    self.add_trial3_medium()
-
-                elif trial_count == 3 or trial_count == 6 or trial_count == 9:
+                    self.add_trial3_block2()
+                elif trial_count == 3:
                     self.delete_trial3_label()
-                    self.add_trial3_high()
+                    self.add_trial3_block3()
+                elif trial_count == 4:
+                    self.delete_trial3_label()
+                    self.add_trial3_block4()
+                elif trial_count == 5:
+                    self.delete_trial3_label()
+                    self.add_trial3_block5()
+                elif trial_count == 6:
+                    self.delete_trial3_label()
+                    self.add_trial3_block6()
 
-                if self.trial3_start_StinngVar_1.get() == "Left":
-                    # add label on the bar
-                    self.add_trial3_status(1,int(self.trial3_start_StinngVar_2.get()[6]))  
-                else:
-                    self.add_trial3_status(2,int(self.trial3_start_StinngVar_2.get()[6]))
+                self.add_trial3_status(int(self.trial3_start_StinngVar.get()[6]))
 
                 # start the progressive bar
-                self.start_trial3_bar(500)      
+                self.start_trial3_bar(760)      
             else:
                 print("retrycancel: ",Messagebox.show_error(title='Oh no', message="Please choose correct task!"))   
 
-    def add_trial3_status(self, set_number, trial_number):
-        if set_number == 1:
-            self.title_3_current_trial = ttk.Label(self.trial3_exp_lf, text="Left "+" Trial "+ str(trial_number),font=("Calibri", 12, "bold"), bootstyle=WARNING)
-        else:
-            self.title_3_current_trial = ttk.Label(self.trial3_exp_lf, text="Right "+" Trial "+ str(trial_number),font=("Calibri", 12, "bold"), bootstyle=WARNING)
+    def add_trial3_status(self, trial_number):
+        self.title_3_current_trial = ttk.Label(self.trial3_exp_lf, text="Right "+" Trial "+ str(trial_number),font=("Calibri", 12, "bold"), bootstyle=WARNING)
         self.title_3_current_trial.grid(row=self.trial3_row+1, column=1, padx=5, pady=5)
 
         if trial_number == 1:
-            self.title_3_status_1 = ttk.Label(self.trial3_exp_lf, text="Low Medium High order",font=("Calibri", 12, "bold"), bootstyle=WARNING)
+            self.title_3_status_1 = ttk.Label(self.trial3_exp_lf, text="high low medium low medium",font=("Calibri", 12, "bold"), bootstyle=WARNING)
             self.title_3_status_1.grid(row=self.trial3_row+1, column=3, padx=5, pady=5)   
 
-            self.title_3_status_2 = ttk.Label(self.trial3_exp_lf, text="6.0  6.5  7.0        ",font=("Calibri", 12, "bold"), bootstyle=WARNING)
+            self.title_3_status_2 = ttk.Label(self.trial3_exp_lf, text="9  6  7  10  8",font=("Calibri", 12, "bold"), bootstyle=WARNING)
             self.title_3_status_2.grid(row=self.trial3_row+2, column=3, padx=5, pady=5) 
         
         elif trial_number == 2:
-            self.title_3_status_1 = ttk.Label(self.trial3_exp_lf, text="Medium High Low order",font=("Calibri", 12, "bold"), bootstyle=WARNING)
+            self.title_3_status_1 = ttk.Label(self.trial3_exp_lf, text="low high low medium medium",font=("Calibri", 12, "bold"), bootstyle=WARNING)
             self.title_3_status_1.grid(row=self.trial3_row+1, column=3, padx=5, pady=5)   
 
-            self.title_3_status_2 = ttk.Label(self.trial3_exp_lf, text="6.5  7.0  7.5        ",font=("Calibri", 12, "bold"), bootstyle=WARNING)
+            self.title_3_status_2 = ttk.Label(self.trial3_exp_lf, text="6  8  10  9  7",font=("Calibri", 12, "bold"), bootstyle=WARNING)
             self.title_3_status_2.grid(row=self.trial3_row+2, column=3, padx=5, pady=5) 
         
         elif trial_number == 3:
-            self.title_3_status_1 = ttk.Label(self.trial3_exp_lf, text="High Low Medium order",font=("Calibri", 12, "bold"), bootstyle=WARNING)
+            self.title_3_status_1 = ttk.Label(self.trial3_exp_lf, text="low medium medium high high",font=("Calibri", 12, "bold"), bootstyle=WARNING)
             self.title_3_status_1.grid(row=self.trial3_row+1, column=3, padx=5, pady=5)   
 
-            self.title_3_status_2 = ttk.Label(self.trial3_exp_lf, text="7.0  7.5  8.0        ",font=("Calibri", 12, "bold"), bootstyle=WARNING)
+            self.title_3_status_2 = ttk.Label(self.trial3_exp_lf, text="7  10  6  8  9",font=("Calibri", 12, "bold"), bootstyle=WARNING)
             self.title_3_status_2.grid(row=self.trial3_row+2, column=3, padx=5, pady=5) 
 
         elif trial_number == 4:
-            self.title_3_status_1 = ttk.Label(self.trial3_exp_lf, text="Low Medium High order",font=("Calibri", 12, "bold"), bootstyle=WARNING)
+            self.title_3_status_1 = ttk.Label(self.trial3_exp_lf, text="low medium high high low",font=("Calibri", 12, "bold"), bootstyle=WARNING)
             self.title_3_status_1.grid(row=self.trial3_row+1, column=3, padx=5, pady=5)   
 
-            self.title_3_status_2 = ttk.Label(self.trial3_exp_lf, text="7.5  8.0  8.5        ",font=("Calibri", 12, "bold"), bootstyle=WARNING)
+            self.title_3_status_2 = ttk.Label(self.trial3_exp_lf, text="10  6  8  9  7",font=("Calibri", 12, "bold"), bootstyle=WARNING)
             self.title_3_status_2.grid(row=self.trial3_row+2, column=3, padx=5, pady=5) 
         
         elif trial_number == 5:
-            self.title_3_status_1 = ttk.Label(self.trial3_exp_lf, text="Medium High Low order",font=("Calibri", 12, "bold"), bootstyle=WARNING)
+            self.title_3_status_1 = ttk.Label(self.trial3_exp_lf, text="high high low medium high",font=("Calibri", 12, "bold"), bootstyle=WARNING)
             self.title_3_status_1.grid(row=self.trial3_row+1, column=3, padx=5, pady=5)   
 
-            self.title_3_status_2 = ttk.Label(self.trial3_exp_lf, text="8.0  8.5  9.0        ",font=("Calibri", 12, "bold"), bootstyle=WARNING)
+            self.title_3_status_2 = ttk.Label(self.trial3_exp_lf, text="8  7  9  6  10",font=("Calibri", 12, "bold"), bootstyle=WARNING)
             self.title_3_status_2.grid(row=self.trial3_row+2, column=3, padx=5, pady=5) 
         
         elif trial_number == 6:
-            self.title_3_status_1 = ttk.Label(self.trial3_exp_lf, text="High Low Medium order",font=("Calibri", 12, "bold"), bootstyle=WARNING)
+            self.title_3_status_1 = ttk.Label(self.trial3_exp_lf, text="high low medium medium low ",font=("Calibri", 12, "bold"), bootstyle=WARNING)
             self.title_3_status_1.grid(row=self.trial3_row+1, column=3, padx=5, pady=5)   
 
-            self.title_3_status_2 = ttk.Label(self.trial3_exp_lf, text="8.5  9.0  9.5        ",font=("Calibri", 12, "bold"), bootstyle=WARNING)
-            self.title_3_status_2.grid(row=self.trial3_row+2, column=3, padx=5, pady=5)
-
-        elif trial_number == 7:
-            self.title_3_status_1 = ttk.Label(self.trial3_exp_lf, text="Low Medium High order",font=("Calibri", 12, "bold"), bootstyle=WARNING)
-            self.title_3_status_1.grid(row=self.trial3_row+1, column=3, padx=5, pady=5)   
-
-            self.title_3_status_2 = ttk.Label(self.trial3_exp_lf, text="9.0  9.5  10.0        ",font=("Calibri", 12, "bold"), bootstyle=WARNING)
-            self.title_3_status_2.grid(row=self.trial3_row+2, column=3, padx=5, pady=5) 
-        
-        elif trial_number == 8:
-            self.title_3_status_1 = ttk.Label(self.trial3_exp_lf, text="Medium High Low order",font=("Calibri", 12, "bold"), bootstyle=WARNING)
-            self.title_3_status_1.grid(row=self.trial3_row+1, column=3, padx=5, pady=5)   
-
-            self.title_3_status_2 = ttk.Label(self.trial3_exp_lf, text="9.5  10.0  6.0        ",font=("Calibri", 12, "bold"), bootstyle=WARNING)
-            self.title_3_status_2.grid(row=self.trial3_row+2, column=3, padx=5, pady=5) 
-        
-        elif trial_number == 9:
-            self.title_3_status_1 = ttk.Label(self.trial3_exp_lf, text="High Low Medium order",font=("Calibri", 12, "bold"), bootstyle=WARNING)
-            self.title_3_status_1.grid(row=self.trial3_row+1, column=3, padx=5, pady=5)   
-
-            self.title_3_status_2 = ttk.Label(self.trial3_exp_lf, text="10.0  6.0  6.5        ",font=("Calibri", 12, "bold"), bootstyle=WARNING)
+            self.title_3_status_2 = ttk.Label(self.trial3_exp_lf, text="8  10  7  6  9",font=("Calibri", 12, "bold"), bootstyle=WARNING)
             self.title_3_status_2.grid(row=self.trial3_row+2, column=3, padx=5, pady=5)
 
 
         self.is_trial3_status = True
 
-    def delete_trial3_label(self):
-        if self.is_trial3_status:
-            self.title_3_current_trial.grid_forget()
-            self.title_3_status_1.grid_forget()
-            self.title_3_status_2.grid_forget()
-
-        self.is_trial3_status = False
-
     def trial3_stop(self):
+        self.Program_start = False
         self.stop_bar = True
         self.trial_finish = True
         self.trial3_break = True
@@ -1162,6 +1372,7 @@ class GUI(ttk.Frame):
         self.title_3_fg = ttk.Floodgauge(self.trial3_exp_lf, bootstyle=INFO, length=750, maximum=self.trial1_bar_max, font=("Calibri", 12, 'bold'),)
         self.title_3_fg.grid(row=self.trial3_row+8, column=0, columnspan=5, padx=5, pady=3)  
         self.title_3_fg['value'] = 0
+        self.transmit("Stop", "stop")
 
     def start_trial3_bar(self, max):
         # start the progressive bar
@@ -1189,129 +1400,360 @@ class GUI(ttk.Frame):
                 
             if self.title_3_fg['value'] == max:
                 self.trial_finish = True
-                if self.trial3_start_StinngVar_1.get() != "Automatic":
-                    self.trial3_stop()
 
 
-    def add_trial3_low(self):
-        self.trial3_start_pos = self.calculate_bar("trial3_low")
+    def add_trial3_block1(self):
+        self.trial3_start_pos = self.calculate_bar("trial3_block1")
 
-        self.trial3_low_1 = ttk.Label(self.frame3, text="| Start ",font=("Calibri", 10, "bold"))
-        self.trial3_low_1.place(x=self.trial3_start_pos[0],y=605)  
+        self.trial3_block1_1 = ttk.Label(self.frame3, text="| H",font=("Calibri", 10, "bold"))
+        self.trial3_block1_1.place(x=self.trial3_start_pos[0],y=605)  
 
-        self.trial3_low_2 = ttk.Label(self.frame3, text="| low ",font=("Calibri", 10, "bold"))
-        self.trial3_low_2.place(x=self.trial3_start_pos[1],y=605) 
+        self.trial3_block1_2 = ttk.Label(self.frame3, text="| 9s Off ",font=("Calibri", 10, "bold"))
+        self.trial3_block1_2.place(x=self.trial3_start_pos[1],y=605) 
 
-        self.trial3_low_3 = ttk.Label(self.frame3, text="| relax ",font=("Calibri", 10, "bold"))
-        self.trial3_low_3.place(x=self.trial3_start_pos[2],y=605) 
+        self.trial3_block1_3 = ttk.Label(self.frame3, text="| L",font=("Calibri", 10, "bold"))
+        self.trial3_block1_3.place(x=self.trial3_start_pos[2],y=605) 
 
-        self.trial3_low_4 = ttk.Label(self.frame3, text="| medium ",font=("Calibri", 10, "bold"))
-        self.trial3_low_4.place(x=self.trial3_start_pos[3],y=605) 
+        self.trial3_block1_4 = ttk.Label(self.frame3, text="| 6s Off ",font=("Calibri", 10, "bold"))
+        self.trial3_block1_4.place(x=self.trial3_start_pos[3],y=605) 
 
-        self.trial3_low_5 = ttk.Label(self.frame3, text="| relax ",font=("Calibri", 10, "bold"))
-        self.trial3_low_5.place(x=self.trial3_start_pos[4],y=605) 
+        self.trial3_block1_5 = ttk.Label(self.frame3, text="| M ",font=("Calibri", 10, "bold"))
+        self.trial3_block1_5.place(x=self.trial3_start_pos[4],y=605) 
 
-        self.trial3_low_6 = ttk.Label(self.frame3, text="| high ",font=("Calibri", 10, "bold"))
-        self.trial3_low_6.place(x=self.trial3_start_pos[5],y=605) 
+        self.trial3_block1_6 = ttk.Label(self.frame3, text="| 7s Off ",font=("Calibri", 10, "bold"))
+        self.trial3_block1_6.place(x=self.trial3_start_pos[5],y=605) 
 
-        self.trial3_low_7 = ttk.Label(self.frame3, text="| relax ",font=("Calibri", 10, "bold"))
-        self.trial3_low_7.place(x=self.trial3_start_pos[6],y=605) 
+        self.trial3_block1_7 = ttk.Label(self.frame3, text="| L",font=("Calibri", 10, "bold"))
+        self.trial3_block1_7.place(x=self.trial3_start_pos[6],y=605) 
 
-        self.is_trial3_low = True
+        self.trial3_block1_8 = ttk.Label(self.frame3, text="| 10s Off ",font=("Calibri", 10, "bold"))
+        self.trial3_block1_8.place(x=self.trial3_start_pos[7],y=605) 
 
-    def delete_trial3_low(self):
-        self.trial3_low_1.place_forget()
-        self.trial3_low_2.place_forget()
-        self.trial3_low_3.place_forget()
-        self.trial3_low_4.place_forget()
-        self.trial3_low_5.place_forget()
-        self.trial3_low_6.place_forget()
-        self.trial3_low_7.place_forget()
+        self.trial3_block1_9 = ttk.Label(self.frame3, text="| M",font=("Calibri", 10, "bold"))
+        self.trial3_block1_9.place(x=self.trial3_start_pos[8],y=605) 
 
-        self.is_trial3_low = False
+        self.trial3_block1_10 = ttk.Label(self.frame3, text="| 8s Off ",font=("Calibri", 10, "bold"))
+        self.trial3_block1_10.place(x=self.trial3_start_pos[9],y=605) 
 
-    def add_trial3_medium(self):
-        self.trial3_start_pos = self.calculate_bar("trial3_medium")
+        self.trial3_block1_11 = ttk.Label(self.frame3, text="| ",font=("Calibri", 10, "bold"))
+        self.trial3_block1_11.place(x=self.trial3_start_pos[10],y=605) 
 
-        self.trial3_medium_1 = ttk.Label(self.frame3, text="| Start ",font=("Calibri", 10, "bold"))
-        self.trial3_medium_1.place(x=self.trial3_start_pos[0],y=605)  
 
-        self.trial3_medium_2 = ttk.Label(self.frame3, text="| medium ",font=("Calibri", 10, "bold"))
-        self.trial3_medium_2.place(x=self.trial3_start_pos[1],y=605) 
+        self.is_trial3_block1 = True
 
-        self.trial3_medium_3 = ttk.Label(self.frame3, text="| relax ",font=("Calibri", 10, "bold"))
-        self.trial3_medium_3.place(x=self.trial3_start_pos[2],y=605) 
+    def delete_trial3_block1(self):
+        # delete the block 1 bar
+        self.trial3_block1_1.place_forget()
+        self.trial3_block1_2.place_forget()
+        self.trial3_block1_3.place_forget()
+        self.trial3_block1_4.place_forget()
+        self.trial3_block1_5.place_forget()
+        self.trial3_block1_6.place_forget()
+        self.trial3_block1_7.place_forget()
+        self.trial3_block1_8.place_forget()
+        self.trial3_block1_9.place_forget()
+        self.trial3_block1_10.place_forget()
+        self.trial3_block1_11.place_forget()
 
-        self.trial3_medium_4 = ttk.Label(self.frame3, text="| high ",font=("Calibri", 10, "bold"))
-        self.trial3_medium_4.place(x=self.trial3_start_pos[3],y=605) 
+        self.is_trial3_block1 = False
 
-        self.trial3_medium_5 = ttk.Label(self.frame3, text="| relax ",font=("Calibri", 10, "bold"))
-        self.trial3_medium_5.place(x=self.trial3_start_pos[4],y=605) 
+    def add_trial3_block2(self):
+        self.trial3_start_pos = self.calculate_bar("trial3_block2")
 
-        self.trial3_medium_6 = ttk.Label(self.frame3, text="| low ",font=("Calibri", 10, "bold"))
-        self.trial3_medium_6.place(x=self.trial3_start_pos[5],y=605) 
+        self.trial3_block2_1 = ttk.Label(self.frame3, text="| L",font=("Calibri", 10, "bold"))
+        self.trial3_block2_1.place(x=self.trial3_start_pos[0],y=605)  
 
-        self.trial3_medium_7 = ttk.Label(self.frame3, text="| relax ",font=("Calibri", 10, "bold"))
-        self.trial3_medium_7.place(x=self.trial3_start_pos[6],y=605) 
+        self.trial3_block2_2 = ttk.Label(self.frame3, text="| 6s Off ",font=("Calibri", 10, "bold"))
+        self.trial3_block2_2.place(x=self.trial3_start_pos[1],y=605) 
 
-        self.is_trial3_medium = True
+        self.trial3_block2_3 = ttk.Label(self.frame3, text="| H",font=("Calibri", 10, "bold"))
+        self.trial3_block2_3.place(x=self.trial3_start_pos[2],y=605) 
+
+        self.trial3_block2_4 = ttk.Label(self.frame3, text="| 8s Off ",font=("Calibri", 10, "bold"))
+        self.trial3_block2_4.place(x=self.trial3_start_pos[3],y=605) 
+
+        self.trial3_block2_5 = ttk.Label(self.frame3, text="| L ",font=("Calibri", 10, "bold"))
+        self.trial3_block2_5.place(x=self.trial3_start_pos[4],y=605) 
+
+        self.trial3_block2_6 = ttk.Label(self.frame3, text="| 10s Off ",font=("Calibri", 10, "bold"))
+        self.trial3_block2_6.place(x=self.trial3_start_pos[5],y=605) 
+
+        self.trial3_block2_7 = ttk.Label(self.frame3, text="| M",font=("Calibri", 10, "bold"))
+        self.trial3_block2_7.place(x=self.trial3_start_pos[6],y=605) 
+
+        self.trial3_block2_8 = ttk.Label(self.frame3, text="| 9s Off ",font=("Calibri", 10, "bold"))
+        self.trial3_block2_8.place(x=self.trial3_start_pos[7],y=605) 
+
+        self.trial3_block2_9 = ttk.Label(self.frame3, text="| M",font=("Calibri", 10, "bold"))
+        self.trial3_block2_9.place(x=self.trial3_start_pos[8],y=605) 
+
+        self.trial3_block2_10 = ttk.Label(self.frame3, text="| 7s Off ",font=("Calibri", 10, "bold"))
+        self.trial3_block2_10.place(x=self.trial3_start_pos[9],y=605) 
+
+        self.trial3_block2_11 = ttk.Label(self.frame3, text="| ",font=("Calibri", 10, "bold"))
+        self.trial3_block2_11.place(x=self.trial3_start_pos[10],y=605) 
+
+
+        self.is_trial3_block2 = True
+
+    def delete_trial3_block2(self):
+        # delete the block 2 bar
+        self.trial3_block2_1.place_forget()
+        self.trial3_block2_2.place_forget()
+        self.trial3_block2_3.place_forget()
+        self.trial3_block2_4.place_forget()
+        self.trial3_block2_5.place_forget()
+        self.trial3_block2_6.place_forget()
+        self.trial3_block2_7.place_forget()
+        self.trial3_block2_8.place_forget()
+        self.trial3_block2_9.place_forget()
+        self.trial3_block2_10.place_forget()
+        self.trial3_block2_11.place_forget()
+
+        self.is_trial3_block2 = False
     
-    def delete_trial3_medium(self):
-        self.trial3_medium_1.place_forget()
-        self.trial3_medium_2.place_forget()
-        self.trial3_medium_3.place_forget()
-        self.trial3_medium_4.place_forget()
-        self.trial3_medium_5.place_forget()
-        self.trial3_medium_6.place_forget()
-        self.trial3_medium_7.place_forget()
+    def add_trial3_block3(self):
+        self.trial3_start_pos = self.calculate_bar("trial3_block3")
 
-        self.is_trial3_medium = False
+        self.trial3_block3_1 = ttk.Label(self.frame3, text="| L",font=("Calibri", 10, "bold"))
+        self.trial3_block3_1.place(x=self.trial3_start_pos[0],y=605)  
 
-    def add_trial3_high(self):
-        self.trial3_start_pos = self.calculate_bar("trial3_high")
+        self.trial3_block3_2 = ttk.Label(self.frame3, text="| 7s Off ",font=("Calibri", 10, "bold"))
+        self.trial3_block3_2.place(x=self.trial3_start_pos[1],y=605) 
 
-        self.trial3_high_1 = ttk.Label(self.frame3, text="| Start ",font=("Calibri", 10, "bold"))
-        self.trial3_high_1.place(x=self.trial3_start_pos[0],y=605)  
+        self.trial3_block3_3 = ttk.Label(self.frame3, text="| M",font=("Calibri", 10, "bold"))
+        self.trial3_block3_3.place(x=self.trial3_start_pos[2],y=605) 
 
-        self.trial3_high_2 = ttk.Label(self.frame3, text="| high ",font=("Calibri", 10, "bold"))
-        self.trial3_high_2.place(x=self.trial3_start_pos[1],y=605) 
+        self.trial3_block3_4 = ttk.Label(self.frame3, text="| 10s Off ",font=("Calibri", 10, "bold"))
+        self.trial3_block3_4.place(x=self.trial3_start_pos[3],y=605) 
 
-        self.trial3_high_3 = ttk.Label(self.frame3, text="| relax ",font=("Calibri", 10, "bold"))
-        self.trial3_high_3.place(x=self.trial3_start_pos[2],y=605) 
+        self.trial3_block3_5 = ttk.Label(self.frame3, text="| M ",font=("Calibri", 10, "bold"))
+        self.trial3_block3_5.place(x=self.trial3_start_pos[4],y=605) 
 
-        self.trial3_high_4 = ttk.Label(self.frame3, text="| low ",font=("Calibri", 10, "bold"))
-        self.trial3_high_4.place(x=self.trial3_start_pos[3],y=605) 
+        self.trial3_block3_6 = ttk.Label(self.frame3, text="| 6s Off ",font=("Calibri", 10, "bold"))
+        self.trial3_block3_6.place(x=self.trial3_start_pos[5],y=605) 
 
-        self.trial3_high_5 = ttk.Label(self.frame3, text="| relax ",font=("Calibri", 10, "bold"))
-        self.trial3_high_5.place(x=self.trial3_start_pos[4],y=605) 
+        self.trial3_block3_7 = ttk.Label(self.frame3, text="| H",font=("Calibri", 10, "bold"))
+        self.trial3_block3_7.place(x=self.trial3_start_pos[6],y=605) 
 
-        self.trial3_high_6 = ttk.Label(self.frame3, text="| medium ",font=("Calibri", 10, "bold"))
-        self.trial3_high_6.place(x=self.trial3_start_pos[5],y=605) 
+        self.trial3_block3_8 = ttk.Label(self.frame3, text="| 8s Off ",font=("Calibri", 10, "bold"))
+        self.trial3_block3_8.place(x=self.trial3_start_pos[7],y=605) 
 
-        self.trial3_high_7 = ttk.Label(self.frame3, text="| relax ",font=("Calibri", 10, "bold"))
-        self.trial3_high_7.place(x=self.trial3_start_pos[6],y=605) 
+        self.trial3_block3_9 = ttk.Label(self.frame3, text="| H",font=("Calibri", 10, "bold"))
+        self.trial3_block3_9.place(x=self.trial3_start_pos[8],y=605) 
 
-        self.is_trial3_high = True
+        self.trial3_block3_10 = ttk.Label(self.frame3, text="| 9s Off ",font=("Calibri", 10, "bold"))
+        self.trial3_block3_10.place(x=self.trial3_start_pos[9],y=605) 
+
+        self.trial3_block3_11 = ttk.Label(self.frame3, text="| ",font=("Calibri", 10, "bold"))
+        self.trial3_block3_11.place(x=self.trial3_start_pos[10],y=605) 
+
+
+        self.is_trial3_block3 = True
+
+    def delete_trial3_block3(self):
+        # delete the block 3 bar
+        self.trial3_block3_1.place_forget()
+        self.trial3_block3_2.place_forget()
+        self.trial3_block3_3.place_forget()
+        self.trial3_block3_4.place_forget()
+        self.trial3_block3_5.place_forget()
+        self.trial3_block3_6.place_forget()
+        self.trial3_block3_7.place_forget()
+        self.trial3_block3_8.place_forget()
+        self.trial3_block3_9.place_forget()
+        self.trial3_block3_10.place_forget()
+        self.trial3_block3_11.place_forget()
+
+        self.is_trial3_block3 = False
     
-    def delete_trial3_high(self):
-        self.trial3_high_1.place_forget()
-        self.trial3_high_2.place_forget()
-        self.trial3_high_3.place_forget()
-        self.trial3_high_4.place_forget()
-        self.trial3_high_5.place_forget()
-        self.trial3_high_6.place_forget()
-        self.trial3_high_7.place_forget()
+    def add_trial3_block4(self):
+        self.trial3_start_pos = self.calculate_bar("trial3_block4")
 
-        self.is_trial3_high = False
+        self.trial3_block4_1 = ttk.Label(self.frame3, text="| L",font=("Calibri", 10, "bold"))
+        self.trial3_block4_1.place(x=self.trial3_start_pos[0],y=605)  
+
+        self.trial3_block4_2 = ttk.Label(self.frame3, text="| 10s Off ",font=("Calibri", 10, "bold"))
+        self.trial3_block4_2.place(x=self.trial3_start_pos[1],y=605) 
+
+        self.trial3_block4_3 = ttk.Label(self.frame3, text="| M",font=("Calibri", 10, "bold"))
+        self.trial3_block4_3.place(x=self.trial3_start_pos[2],y=605) 
+
+        self.trial3_block4_4 = ttk.Label(self.frame3, text="| 6s Off ",font=("Calibri", 10, "bold"))
+        self.trial3_block4_4.place(x=self.trial3_start_pos[3],y=605) 
+
+        self.trial3_block4_5 = ttk.Label(self.frame3, text="| H ",font=("Calibri", 10, "bold"))
+        self.trial3_block4_5.place(x=self.trial3_start_pos[4],y=605) 
+
+        self.trial3_block4_6 = ttk.Label(self.frame3, text="| 8s Off ",font=("Calibri", 10, "bold"))
+        self.trial3_block4_6.place(x=self.trial3_start_pos[5],y=605) 
+
+        self.trial3_block4_7 = ttk.Label(self.frame3, text="| H",font=("Calibri", 10, "bold"))
+        self.trial3_block4_7.place(x=self.trial3_start_pos[6],y=605) 
+
+        self.trial3_block4_8 = ttk.Label(self.frame3, text="| 9s Off ",font=("Calibri", 10, "bold"))
+        self.trial3_block4_8.place(x=self.trial3_start_pos[7],y=605) 
+
+        self.trial3_block4_9 = ttk.Label(self.frame3, text="| L",font=("Calibri", 10, "bold"))
+        self.trial3_block4_9.place(x=self.trial3_start_pos[8],y=605) 
+
+        self.trial3_block4_10 = ttk.Label(self.frame3, text="| 7s Off ",font=("Calibri", 10, "bold"))
+        self.trial3_block4_10.place(x=self.trial3_start_pos[9],y=605) 
+
+        self.trial3_block4_11 = ttk.Label(self.frame3, text="| ",font=("Calibri", 10, "bold"))
+        self.trial3_block4_11.place(x=self.trial3_start_pos[10],y=605) 
+
+
+        self.is_trial3_block4 = True
+
+    def delete_trial3_block4(self):
+        # delete the block 4 bar
+        self.trial3_block4_1.place_forget()
+        self.trial3_block4_2.place_forget()
+        self.trial3_block4_3.place_forget()
+        self.trial3_block4_4.place_forget()
+        self.trial3_block4_5.place_forget()
+        self.trial3_block4_6.place_forget()
+        self.trial3_block4_7.place_forget()
+        self.trial3_block4_8.place_forget()
+        self.trial3_block4_9.place_forget()
+        self.trial3_block4_10.place_forget()
+        self.trial3_block4_11.place_forget()
+
+        self.is_trial3_block4 = False
+    
+    def add_trial3_block5(self):
+        self.trial3_start_pos = self.calculate_bar("trial3_block5")
+
+        self.trial3_block5_1 = ttk.Label(self.frame3, text="| H",font=("Calibri", 10, "bold"))
+        self.trial3_block5_1.place(x=self.trial3_start_pos[0],y=605)  
+
+        self.trial3_block5_2 = ttk.Label(self.frame3, text="| 8s Off ",font=("Calibri", 10, "bold"))
+        self.trial3_block5_2.place(x=self.trial3_start_pos[1],y=605) 
+
+        self.trial3_block5_3 = ttk.Label(self.frame3, text="| H",font=("Calibri", 10, "bold"))
+        self.trial3_block5_3.place(x=self.trial3_start_pos[2],y=605) 
+
+        self.trial3_block5_4 = ttk.Label(self.frame3, text="| 7s Off ",font=("Calibri", 10, "bold"))
+        self.trial3_block5_4.place(x=self.trial3_start_pos[3],y=605) 
+
+        self.trial3_block5_5 = ttk.Label(self.frame3, text="| L ",font=("Calibri", 10, "bold"))
+        self.trial3_block5_5.place(x=self.trial3_start_pos[4],y=605) 
+
+        self.trial3_block5_6 = ttk.Label(self.frame3, text="| 9s Off ",font=("Calibri", 10, "bold"))
+        self.trial3_block5_6.place(x=self.trial3_start_pos[5],y=605) 
+
+        self.trial3_block5_7 = ttk.Label(self.frame3, text="| M",font=("Calibri", 10, "bold"))
+        self.trial3_block5_7.place(x=self.trial3_start_pos[6],y=605) 
+
+        self.trial3_block5_8 = ttk.Label(self.frame3, text="| 6s Off ",font=("Calibri", 10, "bold"))
+        self.trial3_block5_8.place(x=self.trial3_start_pos[7],y=605) 
+
+        self.trial3_block5_9 = ttk.Label(self.frame3, text="| H",font=("Calibri", 10, "bold"))
+        self.trial3_block5_9.place(x=self.trial3_start_pos[8],y=605) 
+
+        self.trial3_block5_10 = ttk.Label(self.frame3, text="| 10s Off ",font=("Calibri", 10, "bold"))
+        self.trial3_block5_10.place(x=self.trial3_start_pos[9],y=605) 
+
+        self.trial3_block5_11 = ttk.Label(self.frame3, text="| ",font=("Calibri", 10, "bold"))
+        self.trial3_block5_11.place(x=self.trial3_start_pos[10],y=605) 
+
+
+        self.is_trial3_block5 = True
+
+    def delete_trial3_block5(self):
+        # delete the block 5 bar
+        self.trial3_block5_1.place_forget()
+        self.trial3_block5_2.place_forget()
+        self.trial3_block5_3.place_forget()
+        self.trial3_block5_4.place_forget()
+        self.trial3_block5_5.place_forget()
+        self.trial3_block5_6.place_forget()
+        self.trial3_block5_7.place_forget()
+        self.trial3_block5_8.place_forget()
+        self.trial3_block5_9.place_forget()
+        self.trial3_block5_10.place_forget()
+        self.trial3_block5_11.place_forget()
+
+        self.is_trial3_block5 = False
+
+    def add_trial3_block6(self):
+        self.trial3_start_pos = self.calculate_bar("trial3_block6")
+
+        self.trial3_block6_1 = ttk.Label(self.frame3, text="| H",font=("Calibri", 10, "bold"))
+        self.trial3_block6_1.place(x=self.trial3_start_pos[0],y=605)  
+
+        self.trial3_block6_2 = ttk.Label(self.frame3, text="| 8s Off ",font=("Calibri", 10, "bold"))
+        self.trial3_block6_2.place(x=self.trial3_start_pos[1],y=605) 
+
+        self.trial3_block6_3 = ttk.Label(self.frame3, text="| L",font=("Calibri", 10, "bold"))
+        self.trial3_block6_3.place(x=self.trial3_start_pos[2],y=605) 
+
+        self.trial3_block6_4 = ttk.Label(self.frame3, text="| 10s Off ",font=("Calibri", 10, "bold"))
+        self.trial3_block6_4.place(x=self.trial3_start_pos[3],y=605) 
+
+        self.trial3_block6_5 = ttk.Label(self.frame3, text="| M ",font=("Calibri", 10, "bold"))
+        self.trial3_block6_5.place(x=self.trial3_start_pos[4],y=605) 
+
+        self.trial3_block6_6 = ttk.Label(self.frame3, text="| 7s Off ",font=("Calibri", 10, "bold"))
+        self.trial3_block6_6.place(x=self.trial3_start_pos[5],y=605) 
+
+        self.trial3_block6_7 = ttk.Label(self.frame3, text="| M",font=("Calibri", 10, "bold"))
+        self.trial3_block6_7.place(x=self.trial3_start_pos[6],y=605) 
+
+        self.trial3_block6_8 = ttk.Label(self.frame3, text="| 6s Off ",font=("Calibri", 10, "bold"))
+        self.trial3_block6_8.place(x=self.trial3_start_pos[7],y=605) 
+
+        self.trial3_block6_9 = ttk.Label(self.frame3, text="| L",font=("Calibri", 10, "bold"))
+        self.trial3_block6_9.place(x=self.trial3_start_pos[8],y=605) 
+
+        self.trial3_block6_10 = ttk.Label(self.frame3, text="| 9s Off ",font=("Calibri", 10, "bold"))
+        self.trial3_block6_10.place(x=self.trial3_start_pos[9],y=605) 
+
+        self.trial3_block6_11 = ttk.Label(self.frame3, text="| ",font=("Calibri", 10, "bold"))
+        self.trial3_block6_11.place(x=self.trial3_start_pos[10],y=605) 
+
+
+        self.is_trial3_block6 = True
+
+    def delete_trial3_block6(self):
+        # delete the block 6 bar
+        self.trial3_block6_1.place_forget()
+        self.trial3_block6_2.place_forget()
+        self.trial3_block6_3.place_forget()
+        self.trial3_block6_4.place_forget()
+        self.trial3_block6_5.place_forget()
+        self.trial3_block6_6.place_forget()
+        self.trial3_block6_7.place_forget()
+        self.trial3_block6_8.place_forget()
+        self.trial3_block6_9.place_forget()
+        self.trial3_block6_10.place_forget()
+        self.trial3_block6_11.place_forget()
+
+        self.is_trial3_block6 = False
+
 
     def delete_trial3_label(self):
-        if self.is_trial3_low:
-            self.delete_trial3_low()
-        elif self.is_trial3_medium:
-            self.delete_trial3_medium()
-        elif self.is_trial3_high:
-            self.delete_trial3_high()
+        if self.is_trial3_status:
+            self.title_3_current_trial.grid_forget()
+            self.title_3_status_1.grid_forget()
+            self.title_3_status_2.grid_forget()
 
+        if self.is_trial3_block1:
+            self.delete_trial3_block1()
+        elif self.is_trial3_block2:
+            self.delete_trial3_block2()
+        elif self.is_trial3_block3:
+            self.delete_trial3_block3()
+        elif self.is_trial3_block4:
+            self.delete_trial3_block4()
+        elif self.is_trial3_block5:
+            self.delete_trial3_block5()
+        elif self.is_trial3_block6:
+            self.delete_trial3_block6()
+        elif self.is_rest_bar:
+            self.rest_bar.place_forget()
+        self.is_trial3_status = False
 
 
 

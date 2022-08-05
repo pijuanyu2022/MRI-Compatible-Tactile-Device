@@ -10,7 +10,7 @@ import re
 
 class Tactile_Control:
     def __init__(self, stream_rate=100):
-        self.serialPort = serial.Serial(port = "COM5", baudrate=9600, bytesize=8, timeout=2, stopbits=serial.STOPBITS_ONE)
+        self.serialPort = serial.Serial(port = "COM6", baudrate=9600, bytesize=8, timeout=2, stopbits=serial.STOPBITS_ONE)
         self.intended_stream_rate = 1 / stream_rate
         self.prev_time = time.perf_counter()
 
@@ -54,31 +54,34 @@ class Tactile_Control:
         self.serialPort.close()
 
 
-# def main():
-#     tactile_control = Tactile_Control()
+def main():
+    tactile_control = Tactile_Control()
 
-#     running = True
+    running = True
 
-#     sample_cache = []
+    sample_cache = []
 
-#     prev_time = time.perf_counter()
+    prev_time = time.perf_counter()
 
-#     delete_first_data = 0
+    delete_first_data = 0
 
-#     while running:
-#         if(tactile_control.serialPort.in_waiting > 0):
-#             samples = tactile_control.read_samples()
-#             delete_first_data += 1
-#             if delete_first_data >= 2:
-#                 # print(samples)
-#                 # print(samples[0][0][:9])
-#                 # print(samples[0][0][9])
-#                 samples[0].insert(0, int(samples[0][0][9]))
-#                 samples[0][1] = float(samples[0][1])
-#                 print(samples)
+    while running:
+        if(tactile_control.serialPort.in_waiting > 0):
+            samples = tactile_control.read_samples()
+            
+            delete_first_data += 1
+            if delete_first_data >= 2 and len(samples[0][0]) != 0:
+                samples[0].insert(0, int(samples[0][0][3]))
+                samples[0].insert(0, int(samples[0][1][4]))
+                samples[0][2] = int(float(samples[0][2])/100)
+                    
+                # sample_cache.extend(samples)
+                print(samples)
 
-# if __name__ == "__main__":
-#     main()
+        tactile_control.write_actuator(16000)
+
+if __name__ == "__main__":
+    main()
 
 
 def data_sender(
@@ -96,23 +99,17 @@ def data_sender(
 
     i = 0
     sum_data = 0
+    pressure_val = 1000
 
     while running:
         if(tactile_control.serialPort.in_waiting > 0):
             samples = tactile_control.read_samples()
             
             delete_first_data += 1
-            if delete_first_data >= 2:
-                samples[0].insert(0, int(samples[0][0][9]))
-                samples[0][1] = float(samples[0][1])
-
-                if i < 10:
-                    sum_data += samples[0][1]
-
-                i += 1
-
-                if i >= 10:
-                    samples[0][1] = samples[0][1] - sum_data/10
+            if delete_first_data >= 2 and len(samples[0][0]) != 0:
+                samples[0].insert(0, int(samples[0][0][3]))
+                samples[0].insert(0, int(samples[0][1][4]))
+                samples[0][2] = int(float(samples[0][2])/100)
                     
                 sample_cache.extend(samples)
                 prev_time += sample_delay
@@ -121,11 +118,12 @@ def data_sender(
                     send_queue.put_nowait(sample_cache)
                     sample_cache = []
 
-                while not communication_queue.empty():
-                    val = communication_queue.get_nowait()
+            tactile_control.write_actuator(pressure_val)
+            while not communication_queue.empty():
+                val = communication_queue.get_nowait()
 
-                    tactile_control.write_actuator(val)
-
-                    if val == "EXIT":
-                        tactile_control.safe_exit()
-                        running = False
+                pressure_val = val
+                
+                if val == "EXIT":
+                    tactile_control.safe_exit()
+                    running = False
