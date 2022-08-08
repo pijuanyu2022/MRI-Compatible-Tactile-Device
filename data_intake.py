@@ -71,12 +71,12 @@ def main():
             
             delete_first_data += 1
             if delete_first_data >= 2 and len(samples[0][0]) != 0:
-                samples[0].insert(0, int(samples[0][0][3]))
-                samples[0].insert(0, int(samples[0][1][4]))
-                samples[0][2] = int(float(samples[0][2])/100)
-                    
-                # sample_cache.extend(samples)
-                print(samples)
+                samples[0].insert(0, int(samples[0][0][9]))
+                samples[0].insert(0, (int(samples[0][1][0:3])))
+                samples[0].insert(0, (int(samples[0][2][4:9])))
+                samples[0].pop(3)
+
+                print(samples[0])
 
         tactile_control.write_actuator(16000)
 
@@ -107,9 +107,10 @@ def data_sender(
             
             delete_first_data += 1
             if delete_first_data >= 2 and len(samples[0][0]) != 0:
-                samples[0].insert(0, int(samples[0][0][3]))
-                samples[0].insert(0, int(samples[0][1][4]))
-                samples[0][2] = int(float(samples[0][2])/100)
+                samples[0].insert(0, int(samples[0][0][9]))
+                samples[0].insert(0, (int(samples[0][1][0:3])))
+                samples[0].insert(0, (int(samples[0][2][4:9])))
+                samples[0].pop(3)
                     
                 sample_cache.extend(samples)
                 prev_time += sample_delay

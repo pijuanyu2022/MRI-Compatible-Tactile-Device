@@ -800,6 +800,8 @@ class GUI(ttk.Frame):
     # ---------------------------------------functions in frame 1---------------------------------------
 
     def trial1_Start(self):
+        self.transmit("Start", 'start')
+        print("Start the program")
         self.trial1_iteration()
 
     def trial1_iteration(self):
@@ -854,7 +856,7 @@ class GUI(ttk.Frame):
                 self.add_trial1_status(trial_count) 
                 self.add_trial1()
 
-                self.start_trial1_bar(475)
+                self.start_trial1_bar(525)
 
                 # rest for 30 s
                 self.delete_trial1_label()
@@ -863,7 +865,7 @@ class GUI(ttk.Frame):
 
                 self.is_rest_bar = True
 
-                self.start_trial1_bar(475)
+                self.start_trial1_bar(525)
 
     def add_trial1_status(self, trial_number):
 
@@ -981,6 +983,8 @@ class GUI(ttk.Frame):
     # ---------------------------------------functions in frame 2---------------------------------------
 
     def trial2_Start(self):
+        self.transmit("Start", 'start')
+        print("Start the program")
         # clear the queue data
         while not self.in_queue.empty():
             self.in_queue.get() 
@@ -1027,7 +1031,7 @@ class GUI(ttk.Frame):
             self.is_rest_bar = True
 
             self.trial2_break = False
-            self.start_trial2_bar(475)
+            self.start_trial2_bar(525)
             
 
             for trial_count in range(1,7):
@@ -1053,7 +1057,7 @@ class GUI(ttk.Frame):
                 self.add_trial2()
 
                 # start the progressive bar
-                self.start_trial2_bar(475)
+                self.start_trial2_bar(525)
 
                 # rest for 30 s
                 self.delete_trial2_label()
@@ -1062,7 +1066,7 @@ class GUI(ttk.Frame):
 
                 self.is_rest_bar = True
 
-                self.start_trial2_bar(475)
+                self.start_trial2_bar(525)
 
     def add_trial2_status(self, trial_number):
 
@@ -1180,6 +1184,8 @@ class GUI(ttk.Frame):
 
     # ---------------------------------------functions in frame 3---------------------------------------
     def trial3_Start(self):
+        self.transmit("Start", 'start')
+        print("Start the program")
         # clear the queue data
         while not self.in_queue.empty():
             self.in_queue.get() 

@@ -18,11 +18,12 @@ import math
 class MainExperiment:
     # Experimental state and control
     experiment_mode: str = "DEFAULT"
-    mode_state: str = "SHOULDER ELBOW"
+    mode_state: str = "DEFAULT"
     current_trial: str = "Prepare"
     current_status: str = "Prepare"
     task: str = "DEFAULT"
     mode_status: str = "Prepare"
+    program_start: int = 0
 
     # pressure
     pressure_value: float = 1
@@ -30,6 +31,7 @@ class MainExperiment:
     voltage_value: float = 1
     solenoid_value: int = 0
     BNC_value: int = 0
+    BNC_logic: int = 0
 
     target_pressure: int = 1000
     target_solenoid: str = "DEFAULT"
@@ -120,9 +122,16 @@ def main():
 
         if data_buffer:
             data = data_buffer.popleft()
-            experiment.solenoid_value, experiment.BNC_value, experiment.voltage_value, experiment.timestep= data
-            experiment.voltage_value = experiment.voltage_value*0.006426
-            experiment.pressure_value = experiment.voltage_value*0.1095 - 0.2063
+            experiment.BNC_value, experiment.voltage_value, experiment.solenoid_value, experiment.timestep= data
+            experiment.voltage_value = experiment.voltage_value*(3.3/1024)
+            experiment.BNC_value = experiment.BNC_value*(3.3/1024)
+            experiment.pressure_value = experiment.voltage_value*0.1095
+
+            if experiment.BNC_value > 1.5:
+                experiment.BNC_logic = 1
+            else:
+                experiment.BNC_logic = 0
+
 
             if experiment.solenoid_value == 0:
                 experiment.solenoid_value = 1
@@ -187,7 +196,8 @@ def main():
                             "Pressure value (MPa)",
                             "Voltage value (V)",
                             "Solenoid Value (O or 1)",
-                            "BNC cable voltage (0 or 1)",
+                            "BNC cable voltage (V)",
+                            "Program start (0 or 1)"
                         ]
                     )
 
@@ -251,8 +261,12 @@ def main():
                 is_saved_trial3 = False
 
             elif header == "Stop":
+                experiment.program_start = 0
                 experiment.task = "Stop"
                 save_happen = False
+            
+            elif header == "Start":
+                experiment.program_start = 1
 
             elif header == "Close":
                 gui_p.terminate()
@@ -271,6 +285,7 @@ def main():
                         experiment.voltage_value,
                         experiment.solenoid_value,
                         experiment.BNC_value,
+                        experiment.program_start,
                     ]
                 )
         
@@ -279,10 +294,10 @@ def main():
         # pressure+0 piston push up, pressure range (1500 - 3100)
 
         # if get 5 V, start the program
-        gui_out_queue.put(experiment.BNC_value)
+        gui_out_queue.put(experiment.BNC_logic)
 
 
-        if experiment.BNC_value == 1 and is_BNC_start == False:
+        if experiment.BNC_logic == 1 and is_BNC_start == False:
             Voltage_time = experiment.timestep
             is_BNC_start = TRUE
 
@@ -390,7 +405,7 @@ def main():
             experiment.pressure_medium = 1350
             experiment.pressure_high = 3000
 
-            experiment.pressure_down = 31001
+            experiment.pressure_down = 28001
 
             if experiment.mode_state == "Trial 1":
                 # [high + 9 + low + 6 + medium + 7 + low + 10 + medium + 8]
@@ -902,7 +917,7 @@ def main():
                 "Pressure value (MPa)",
                 "Voltage value (V)",
                 "Solenoid Value (O or 1)",
-                "BNC cable voltage (0 or 1)"
+                "BNC cable voltage (V)"
             ]
 
             graph_data = [
